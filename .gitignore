@@ -1,0 +1,29 @@
+#######################
+# IntelliJ Based Files
+#######################
+
+.idea/
+*.iml
+target/
+
+#############
+# Java Files
+#############
+
+*.class
+
+################
+# Package Files
+################
+
+*.jar
+*.war
+*.ear
+
+######
+# Etc
+######
+
+hs_err_pid*
+Thumbs.db
+.mtj.tmp/
