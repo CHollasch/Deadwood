@@ -47,37 +47,37 @@ public class CommandLineBoard implements Board
     }
 
     @Override
-    public void playerActed (Player player, boolean successful, int diceRoll)
+    public void playerActed (final Player player, final boolean successful, final int diceRoll)
     {
 
     }
 
     @Override
-    public void playerEndedTurn (Player player)
+    public void playerEndedTurn (final Player player)
     {
 
     }
 
     @Override
-    public void playerMoved (Player player, Room newRoom)
+    public void playerMoved (final Player player, final Room newRoom)
     {
 
     }
 
     @Override
-    public void playerRehearsed (Player player)
+    public void playerRehearsed (final Player player)
     {
 
     }
 
     @Override
-    public void playerTookRole (Player player, Role role)
+    public void playerTookRole (final Player player, final Role role)
     {
 
     }
 
     @Override
-    public void playerUpgraded (Player player, boolean usedCredits, int rankUpgradingTo)
+    public void playerUpgraded (final Player player, final boolean usedCredits, final int rankUpgradingTo)
     {
 
     }
