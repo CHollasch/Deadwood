@@ -23,7 +23,42 @@ public class Role
 {
     private final String name;
     private final String line;
+    private Player player;
 
     private final int minimumRank;
     private final boolean extraRole;
+
+    private boolean isTaken;
+    private boolean isOnCard;
+
+    public boolean isTaken()
+    {
+        return isTaken;
+    }
+
+    public boolean isOnCard(Card card)
+    {
+        return isOnCard;
+    }
+
+    public int getMinimumRank()
+    {
+        return minimumRank;
+    }
+
+    public void setTaken()
+    {
+        isTaken = true;
+    }
+
+    public void setPlayer(Player player)
+    {
+        this.player = player;
+    }
+
+    public Player getPlayer()
+    {
+        return player;
+    }
+
 }
