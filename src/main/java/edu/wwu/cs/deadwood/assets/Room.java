@@ -10,7 +10,6 @@
 
 package edu.wwu.cs.deadwood.assets;
 
-import edu.wwu.cs.deadwood.Player;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -61,5 +60,41 @@ public class Room
         TRAILER,
         CASTING_OFFICE,
         STAGE
+    }
+
+    public Card getCard()
+    {
+        return card;
+    }
+
+    public Type getRoomType()
+    {
+        return roomType;
+    }
+
+    public void closeScene()
+    {
+      sceneFinished = true;
+      card.discard();
+    }
+
+    public void clearShotMarker()
+    {
+        currentShotCounter = 0;
+    }
+
+    public int getShotCount()
+    {
+        return currentShotCounter;
+    }
+
+    public void takeOneShotOff()
+    {
+        currentShotCounter--;
+    }
+
+    public void getNewCard()
+    {
+
     }
 }

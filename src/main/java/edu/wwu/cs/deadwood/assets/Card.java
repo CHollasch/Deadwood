@@ -26,18 +26,41 @@ public class Card
     private final String description;
 
     private final int cardBudget;
-    private final Collection<Role> roles;
+    private final Role[] roles;
+    private final Collection<Player> players;
 
     @Setter
     private boolean isVisible;
 
-    public Card (final String name, final String description, final int cardBudget, final Collection<Role> roles)
+    public Card (final String name, final String description, final int cardBudget, final Role[] roles)
     {
         this.name = name;
         this.description = description;
         this.cardBudget = cardBudget;
         this.roles = roles;
+        this.players = null;
 
         this.isVisible = false;
+    }
+
+    public int getCardBudget()
+    {
+        return cardBudget;
+    }
+
+    public boolean hasPlayers()
+    {
+        return players != null;
+    }
+
+    public void discard()
+    {
+        isVisible = false;
+        // better to remove it from board
+    }
+
+    public Role[] getRoles()
+    {
+        return roles;
     }
 }
