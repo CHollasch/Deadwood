@@ -13,7 +13,6 @@ package edu.wwu.cs.deadwood.board;
 import edu.wwu.cs.deadwood.Player;
 import edu.wwu.cs.deadwood.assets.Role;
 import edu.wwu.cs.deadwood.assets.Room;
-import lombok.Getter;
 
 import java.util.Scanner;
 
