@@ -10,16 +10,12 @@
 
 package edu.wwu.cs.deadwood.assets;
 
-import lombok.Getter;
-import lombok.Setter;
-
 import java.util.Collection;
 
 /**
  * @author Connor Hollasch
  * @since October 31, 1:53 PM
  */
-@Getter
 public class Card
 {
     private final String name;
@@ -28,8 +24,7 @@ public class Card
     private final int cardBudget;
     private final Collection<Role> roles;
 
-    @Setter
-    private boolean isVisible;
+    private boolean visible;
 
     public Card (final String name, final String description, final int cardBudget, final Collection<Role> roles)
     {
@@ -38,6 +33,36 @@ public class Card
         this.cardBudget = cardBudget;
         this.roles = roles;
 
-        this.isVisible = false;
+        this.visible = false;
+    }
+
+    public String getName ()
+    {
+        return this.name;
+    }
+
+    public String getDescription ()
+    {
+        return this.description;
+    }
+
+    public int getCardBudget ()
+    {
+        return this.cardBudget;
+    }
+
+    public Collection<Role> getRoles ()
+    {
+        return this.roles;
+    }
+
+    public boolean isVisible ()
+    {
+        return this.visible;
+    }
+
+    public void setVisible (final boolean visible)
+    {
+        this.visible = visible;
     }
 }

@@ -11,8 +11,6 @@
 package edu.wwu.cs.deadwood.assets;
 
 import edu.wwu.cs.deadwood.Player;
-import lombok.Getter;
-import lombok.Setter;
 
 import java.util.Collection;
 import java.util.HashSet;
@@ -21,8 +19,6 @@ import java.util.HashSet;
  * @author Connor Hollasch
  * @since October 31, 1:53 PM
  */
-@Getter
-@Setter
 public class Room
 {
     private final Type roomType;
@@ -54,6 +50,56 @@ public class Room
     public boolean isAdjacentTo (final Room other)
     {
         return other != null && this.adjacentRooms.contains(other);
+    }
+
+    public Type getRoomType ()
+    {
+        return this.roomType;
+    }
+
+    public String getName ()
+    {
+        return this.name;
+    }
+
+    public int getTotalShotMarkers ()
+    {
+        return this.totalShotMarkers;
+    }
+
+    public int getCurrentShotCounter ()
+    {
+        return this.currentShotCounter;
+    }
+
+    public void setCurrentShotCounter (final int currentShotCounter)
+    {
+        this.currentShotCounter = currentShotCounter;
+    }
+
+    public Collection<Room> getAdjacentRooms ()
+    {
+        return this.adjacentRooms;
+    }
+
+    public Card getCard ()
+    {
+        return this.card;
+    }
+
+    public void setCard (final Card card)
+    {
+        this.card = card;
+    }
+
+    public boolean isSceneFinished ()
+    {
+        return this.sceneFinished;
+    }
+
+    public void setSceneFinished (final boolean sceneFinished)
+    {
+        this.sceneFinished = sceneFinished;
     }
 
     public enum Type

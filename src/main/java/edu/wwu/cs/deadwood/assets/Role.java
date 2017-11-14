@@ -10,15 +10,10 @@
 
 package edu.wwu.cs.deadwood.assets;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-
 /**
  * @author Connor Hollasch
  * @since October 31, 1:44 PM
  */
-@Getter
-@AllArgsConstructor
 public class Role
 {
     private final String name;
@@ -26,4 +21,16 @@ public class Role
 
     private final int minimumRank;
     private final boolean extraRole;
+
+    public Role (
+            final String name,
+            final String line,
+            final int minimumRank,
+            final boolean extraRole)
+    {
+        this.name = name;
+        this.line = line;
+        this.minimumRank = minimumRank;
+        this.extraRole = extraRole;
+    }
 }

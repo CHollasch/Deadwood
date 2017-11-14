@@ -13,7 +13,6 @@ package edu.wwu.cs.deadwood;
 import edu.wwu.cs.deadwood.assets.Role;
 import edu.wwu.cs.deadwood.assets.Room;
 import edu.wwu.cs.deadwood.board.Board;
-import lombok.Getter;
 
 import java.util.Collection;
 import java.util.HashSet;
@@ -24,19 +23,10 @@ import java.util.HashSet;
  */
 public class Game
 {
-    @Getter
     private Deadwood deadwood;
-
-    @Getter
     private Collection<Player> players;
-
-    @Getter
     private Player currentPlayer;
-
-    @Getter
     private Board gameBoard;
-
-    @Getter
     private int dayNumber;
 
     private boolean playerUsedMove;
@@ -103,5 +93,30 @@ public class Game
     public void endGame ()
     {
 
+    }
+
+    public Deadwood getDeadwood ()
+    {
+        return this.deadwood;
+    }
+
+    public Collection<Player> getPlayers ()
+    {
+        return this.players;
+    }
+
+    public Player getCurrentPlayer ()
+    {
+        return this.currentPlayer;
+    }
+
+    public Board getGameBoard ()
+    {
+        return this.gameBoard;
+    }
+
+    public int getDayNumber ()
+    {
+        return this.dayNumber;
     }
 }
