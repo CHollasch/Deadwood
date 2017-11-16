@@ -14,6 +14,7 @@ import edu.wwu.cs.deadwood.Player;
 
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.stream.Collectors;
 
 /**
  * @author Connor Hollasch
@@ -28,6 +29,7 @@ public class Room
     private int currentShotCounter;
 
     private final Collection<Room> adjacentRooms;
+    private final Collection<Role> extraRoles;
 
     private Card card;
     private boolean sceneFinished;
@@ -42,6 +44,7 @@ public class Room
 
         this.currentShotCounter = 0;
         this.adjacentRooms = new HashSet<>();
+        this.extraRoles = new HashSet<>();
         this.card = null;
         this.sceneFinished = false;
         this.players = new HashSet<>();
@@ -82,6 +85,11 @@ public class Room
         return this.adjacentRooms;
     }
 
+    public Collection<Role> getExtraRoles ()
+    {
+        return this.extraRoles;
+    }
+
     public Card getCard ()
     {
         return this.card;
@@ -107,5 +115,16 @@ public class Room
         TRAILER,
         CASTING_OFFICE,
         STAGE
+    }
+
+    @Override
+    public String toString ()
+    {
+        return "[" + this.roomType.toString()
+                + "_" + this.name
+                + "_" + this.currentShotCounter + "/" + this.totalShotMarkers
+                + "_" + this.extraRoles.toString()
+                + "_" + this.adjacentRooms.stream().map(Room::getName).collect(Collectors.toList())
+                + "]";
     }
 }

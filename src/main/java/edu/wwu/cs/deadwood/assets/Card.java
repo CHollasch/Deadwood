@@ -65,4 +65,10 @@ public class Card
     {
         this.visible = visible;
     }
+
+    @Override
+    public String toString ()
+    {
+        return "[" + this.name + "_" + this.description + "_" + this.cardBudget + "_" + this.roles + "]";
+    }
 }

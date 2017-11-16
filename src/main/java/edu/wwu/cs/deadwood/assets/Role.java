@@ -33,4 +33,10 @@ public class Role
         this.minimumRank = minimumRank;
         this.extraRole = extraRole;
     }
+
+    @Override
+    public String toString ()
+    {
+        return "(" + this.name + "," + this.line + "," + this.minimumRank + "," + (this.extraRole ? "extra" : "main") + ")";
+    }
 }
