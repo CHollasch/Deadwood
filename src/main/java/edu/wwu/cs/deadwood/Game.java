@@ -442,9 +442,7 @@ public class Game
         Collections.shuffle(cards);
         final Iterator<Card> randomCards = cards.iterator();
 
-        for (final Card card : cards) {
-            card.setVisible(false);
-        }
+        cards.forEach(c -> c.setVisible(false));
 
         // We don't have to worry about our iterator running out of data as we always have more cards than rooms.
         for (final Room room : AssetManager.getInstance().getRoomMap().values()) {
