@@ -307,12 +307,16 @@ public class Game
     {
         final Card roomCard = room.getCard();
 
+        // Mark the card and room as finished.
         roomCard.setVisible(false);
         room.setSceneFinished(true);
 
+        // Store players and their roles in the room.
+        // We'll use a BiMap to lookup by role on main roles.
         final BiMap<Player, Role> playersOnCardRoles = HashBiMap.create();
         final Map<Player, Role> playersOnExtraRoles = new HashMap<>();
 
+        // Load players and their roles into the maps.
         for (final Player player : getPlayers()) {
             final Room currentPlayerRoom = player.getCurrentRoom();
 
@@ -326,6 +330,7 @@ public class Game
                 continue;
             }
 
+            // Mark the player as having no role as the scene is wrapped.
             player.setActiveRole(null);
 
             if (roomCard.getRoles().contains(role)) {
@@ -335,6 +340,7 @@ public class Game
             }
         }
 
+        // Load up dice rolls based on the card budget.
         final int cardBudget = roomCard.getCardBudget();
         final int[] diceRolls = new int[cardBudget];
 
@@ -342,11 +348,15 @@ public class Game
             diceRolls[i] = rollDice();
         }
 
+        // Sort the dice rolls ascending.
         Arrays.sort(diceRolls);
 
+        // Store payouts.
+        // On card payouts, we need to store all of the roles a player earned.
         final Map<Player, Collection<Integer>> playerPayouts = new HashMap<>();
         final Map<Player, Integer> offCardPayouts = new HashMap<>();
 
+        // Only worry about on card roles if there are players on main roles.
         if (playersOnCardRoles.size() > 0) {
             final Role[] rolePriority = new Role[playersOnCardRoles.size()];
             int idx = 0;
@@ -355,12 +365,14 @@ public class Game
                 rolePriority[idx++] = role;
             }
 
+            // Sort players based on the roles they are acting.
             Arrays.sort(rolePriority, (o1, o2) -> o2.getMinimumRank() - o1.getMinimumRank());
 
             for (final Player onCard : playersOnCardRoles.keySet()) {
                 playerPayouts.put(onCard, new ArrayList<>());
             }
 
+            // Iterate through all the roles and assign players dice rolls.
             int roleIndex = 0;
             for (int i = diceRolls.length - 1; i >= 0; --i) {
                 final int roll = diceRolls[i];
@@ -374,13 +386,17 @@ public class Game
             }
         }
 
+        // Pay players that have on card roles.
         for (final Player mainRolePlayer : playerPayouts.keySet()) {
             final Collection<Integer> sumPaid = playerPayouts.get(mainRolePlayer);
+
+            // Pay with sum of dice rolls as dollar amount.
             final int sumOfDiceRolls = sumPaid.stream().mapToInt(Integer::intValue).sum();
 
             mainRolePlayer.setDollarCount(mainRolePlayer.getDollarCount() + sumOfDiceRolls);
         }
 
+        // Pay players that have off card roles.
         for (final Player extraRolePlayer : playersOnExtraRoles.keySet()) {
             final Role extraRole = playersOnExtraRoles.get(extraRolePlayer);
             final int roleRank = extraRole.getMinimumRank();
@@ -389,6 +405,8 @@ public class Game
             offCardPayouts.put(extraRolePlayer, roleRank);
         }
 
+        // Get the total room count and look at the number of wrapped rooms.
+        // Trailer and office are automatically considered wrapped.
         final int totalRooms = AssetManager.getInstance().getRoomMap().size();
         int wrappedRooms = 0;
 
@@ -401,6 +419,7 @@ public class Game
             }
         }
 
+        // Update the game board of the scene wrap.
         this.gameBoard.sceneWrapped(room, playerPayouts, offCardPayouts);
 
         // Check to see if we need to end the day now that the last scene has been wrapped up.
