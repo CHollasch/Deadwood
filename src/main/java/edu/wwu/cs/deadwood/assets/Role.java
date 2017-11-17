@@ -1,13 +1,3 @@
-/*
- * Copyright (C) 2017 Deadwood - All Rights Reserved
- *
- * Unauthorized copying of this file, via any median is strictly prohibited
- * proprietary and confidential. For more information, please contact me at
- * connor@hollasch.net
- *
- * Written by Connor Hollasch <connor@hollasch.net>, October 2017
- */
-
 package edu.wwu.cs.deadwood.assets;
 
 /**
@@ -32,6 +22,26 @@ public class Role
         this.line = line;
         this.minimumRank = minimumRank;
         this.extraRole = extraRole;
+    }
+
+    public String getName ()
+    {
+        return this.name;
+    }
+
+    public String getLine ()
+    {
+        return this.line;
+    }
+
+    public int getMinimumRank ()
+    {
+        return this.minimumRank;
+    }
+
+    public boolean isExtraRole ()
+    {
+        return this.extraRole;
     }
 
     @Override

@@ -1,16 +1,7 @@
-/*
- * Copyright (C) 2017 Deadwood - All Rights Reserved
- *
- * Unauthorized copying of this file, via any median is strictly prohibited
- * proprietary and confidential. For more information, please contact me at
- * connor@hollasch.net
- *
- * Written by Connor Hollasch <connor@hollasch.net>, October 2017
- */
-
 package edu.wwu.cs.deadwood;
 
 import edu.wwu.cs.deadwood.assets.Role;
+import edu.wwu.cs.deadwood.assets.Room;
 
 /**
  * @author Connor Hollasch
@@ -25,6 +16,8 @@ public class Player
     private int rank;
 
     private int practiceChips;
+
+    private Room currentRoom;
     private Role activeRole;
 
     public Player (final Color color)
@@ -36,6 +29,11 @@ public class Player
         this.rank = 1;
         this.practiceChips = 0;
         this.activeRole = null;
+    }
+
+    public int getScore ()
+    {
+        return getCreditCount() + getDollarCount() + (5 * getRank());
     }
 
     public Color getColor ()
@@ -81,6 +79,16 @@ public class Player
     public void setPracticeChips (final int practiceChips)
     {
         this.practiceChips = practiceChips;
+    }
+
+    public Room getCurrentRoom ()
+    {
+        return this.currentRoom;
+    }
+
+    public void setCurrentRoom (final Room currentRoom)
+    {
+        this.currentRoom = currentRoom;
     }
 
     public Role getActiveRole ()

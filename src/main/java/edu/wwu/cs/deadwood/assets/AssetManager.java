@@ -1,15 +1,6 @@
-/*
- * Copyright (C) 2017 Deadwood - All Rights Reserved
- *
- * Unauthorized copying of this file, via any median is strictly prohibited
- * proprietary and confidential. For more information, please contact me at
- * connor@hollasch.net
- *
- * Written by Connor Hollasch <connor@hollasch.net>, November 2017
- */
-
 package edu.wwu.cs.deadwood.assets;
 
+import edu.wwu.cs.deadwood.util.Pair;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -30,6 +21,40 @@ import java.util.Map;
  */
 public class AssetManager
 {
+    //==================================================================================================================
+    // Rank upgrade costs
+    //==================================================================================================================
+
+    private static final Map<Integer, Pair<Integer, Integer>> upgradeCostTable = new HashMap<Integer, Pair<Integer, Integer>>() {
+        {
+            put(2, 4, 5);
+            put(3, 10, 10);
+            put(4, 18, 15);
+            put(5, 28, 20);
+            put(6, 40, 25);
+        }
+
+        private void put (final int rank, final int dollars, final int credits)
+        {
+            put(rank, new Pair<>(dollars, credits));
+        }
+    };
+
+    public static Map<Integer, Pair<Integer, Integer>> getUpgradeCostTable ()
+    {
+        return AssetManager.upgradeCostTable;
+    }
+
+    public static int getDollarUpgradeCost (final int rank)
+    {
+        return AssetManager.upgradeCostTable.containsKey(rank) ? AssetManager.upgradeCostTable.get(rank).getFirst() : -1;
+    }
+
+    public static int getCreditUpgradeCost (final int rank)
+    {
+        return AssetManager.upgradeCostTable.containsKey(rank) ? AssetManager.upgradeCostTable.get(rank).getSecond() : -1;
+    }
+
     private static AssetManager instance;
 
     private final File assetDirectory;
@@ -37,6 +62,9 @@ public class AssetManager
 
     private final Map<String, Room> roomMap;
     private final Map<String, Card> cardMap;
+
+    private Room trailerRoom;
+    private Room upgradeRoom;
 
     private AssetManager (final File assetDirectory) throws Exception
     {
@@ -74,10 +102,12 @@ public class AssetManager
             else if (nodeName.equals("trailer")) {
                 // Load trailer.
                 room = loadSpecialRoom(node, Room.Type.TRAILER, "trailer");
+                this.trailerRoom = room.room;
             }
             else {
                 // Load office.
                 room = loadSpecialRoom(node, Room.Type.CASTING_OFFICE, "office");
+                this.upgradeRoom = room.room;
             }
 
             partiallyLoadedRoomMap.put(room.room.getName(), room);
@@ -92,7 +122,7 @@ public class AssetManager
                 value.room.getAdjacentRooms().add(room);
             }
 
-            this.roomMap.put(roomName, value.room);
+            this.roomMap.put(roomName.toLowerCase(), value.room);
         }
     }
 
@@ -155,6 +185,8 @@ public class AssetManager
             final int budget = Integer.parseInt(cardNode.getAttributes().getNamedItem("budget").getNodeValue());
 
             final Node sceneNode = extractFirstOccurance(cardNode, "scene");
+            final int sceneNumber = Integer.parseInt(sceneNode.getAttributes().getNamedItem("number").getNodeValue());
+
             final Collection<Role> roles = new HashSet<>();
 
             for (final Node potentialPart : getElementTypeNodes(cardNode)) {
@@ -168,7 +200,7 @@ public class AssetManager
 
             final String description = sceneNode.getTextContent().replace("\n", "").replaceAll("[ ]{2,}", " ").trim();
 
-            final Card card = new Card(name, description, budget, roles);
+            final Card card = new Card(name, description, sceneNumber, budget, roles);
             this.cardMap.put(name, card);
         }
     }
@@ -199,6 +231,26 @@ public class AssetManager
         }
 
         return nodes;
+    }
+
+    public Map<String, Card> getCardMap ()
+    {
+        return this.cardMap;
+    }
+
+    public Map<String, Room> getRoomMap ()
+    {
+        return this.roomMap;
+    }
+
+    public Room getTrailerRoom ()
+    {
+        return this.trailerRoom;
+    }
+
+    public Room getUpgradeRoom ()
+    {
+        return this.upgradeRoom;
     }
 
     public static AssetManager getInstance ()

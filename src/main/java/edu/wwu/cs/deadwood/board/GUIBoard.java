@@ -1,13 +1,3 @@
-/*
- * Copyright (C) 2017 Deadwood - All Rights Reserved
- *
- * Unauthorized copying of this file, via any median is strictly prohibited
- * proprietary and confidential. For more information, please contact me at
- * connor@hollasch.net
- *
- * Written by Connor Hollasch <connor@hollasch.net>, October 2017
- */
-
 package edu.wwu.cs.deadwood.board;
 
 import edu.wwu.cs.deadwood.Player;
@@ -15,6 +5,8 @@ import edu.wwu.cs.deadwood.assets.Role;
 import edu.wwu.cs.deadwood.assets.Room;
 
 import javax.swing.*;
+import java.util.Collection;
+import java.util.Map;
 
 /**
  * @author Connor Hollasch
@@ -41,13 +33,31 @@ public class GUIBoard implements Board
     }
 
     @Override
+    public void sceneWrapped (Room room, Map<Player, Collection<Integer>> onCardPayouts, final Map<Player, Integer> offCardPayouts)
+    {
+
+    }
+
+    @Override
+    public void dayWrapped ()
+    {
+
+    }
+
+    @Override
+    public void endGame ()
+    {
+
+    }
+
+    @Override
     public void playerActed (final Player player, final boolean successful, final int diceRoll)
     {
 
     }
 
     @Override
-    public void playerEndedTurn (final Player player)
+    public void playerEndedTurn (final Player old, final Player newPlayer)
     {
 
     }

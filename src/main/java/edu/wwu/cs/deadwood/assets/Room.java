@@ -1,16 +1,4 @@
-/*
- * Copyright (C) 2017 Deadwood - All Rights Reserved
- *
- * Unauthorized copying of this file, via any median is strictly prohibited
- * proprietary and confidential. For more information, please contact me at
- * connor@hollasch.net
- *
- * Written by Connor Hollasch <connor@hollasch.net>, October 2017
- */
-
 package edu.wwu.cs.deadwood.assets;
-
-import edu.wwu.cs.deadwood.Player;
 
 import java.util.Collection;
 import java.util.HashSet;
@@ -34,8 +22,6 @@ public class Room
     private Card card;
     private boolean sceneFinished;
 
-    private final Collection<Player> players;
-
     public Room (final Type roomType, final String name, final int totalShotMarkers)
     {
         this.roomType = roomType;
@@ -47,7 +33,6 @@ public class Room
         this.extraRoles = new HashSet<>();
         this.card = null;
         this.sceneFinished = false;
-        this.players = new HashSet<>();
     }
 
     public boolean isAdjacentTo (final Room other)

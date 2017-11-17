@@ -1,6 +1,7 @@
 package edu.wwu.cs.deadwood;
 
 import edu.wwu.cs.deadwood.assets.AssetManager;
+import edu.wwu.cs.deadwood.board.CommandLineBoard;
 
 import java.io.File;
 
@@ -16,12 +17,17 @@ public class Deadwood
     {
         // Create game instance and start... or whatever
         AssetManager.setupAssetManager(new File("assets"));
+        startGame();
     }
 
     public void startGame ()
     {
         this.game = new Game(this);
-        this.game.initializeGame(2);
+
+        final CommandLineBoard cliBoard = new CommandLineBoard(this.game);
+        this.game.initializeGame(cliBoard, 2);
+
+        cliBoard.setupConsoleListener(); // Event loop.
     }
 
     public void onGameEnd ()
