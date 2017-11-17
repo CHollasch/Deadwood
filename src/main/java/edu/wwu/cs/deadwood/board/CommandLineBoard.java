@@ -1,13 +1,3 @@
-/*
- * Copyright (C) 2017 Deadwood - All Rights Reserved
- *
- * Unauthorized copying of this file, via any median is strictly prohibited
- * proprietary and confidential. For more information, please contact me at
- * connor@hollasch.net
- *
- * Written by Connor Hollasch <connor@hollasch.net>, October 2017
- */
-
 package edu.wwu.cs.deadwood.board;
 
 import edu.wwu.cs.deadwood.Actionable;
@@ -27,22 +17,35 @@ import java.util.stream.Collectors;
  */
 public class CommandLineBoard implements Board
 {
+    //==================================================================================================================
+    // Local variables.
+    //==================================================================================================================
+
     private Scanner consoleScanner;
     private Game game;
 
     private Map<String, Command> commandMap;
+
+    //==================================================================================================================
+    // Constructors.
+    //==================================================================================================================
 
     public CommandLineBoard (final Game game)
     {
         this.game = game;
         this.commandMap = new HashMap<>();
 
+        //==============================================================================================================
+        // Who command.
+        //==============================================================================================================
+
         this.commandMap.put("who", args -> {
             final StringBuilder who = new StringBuilder();
 
             final Player current = this.game.getCurrentPlayer().getPlayer();
             who.append(current.getColor().name().toLowerCase() + " ");
-            who.append("($" + current.getDollarCount() + ", " + current.getCreditCount() + "cr, rank " + current.getRank() + ")");
+            who.append("($" + current.getDollarCount() + ", " + current.getCreditCount() + "cr, rank "
+                    + current.getRank() + ")");
 
             if (current.getActiveRole() != null) {
                 final Role active = current.getActiveRole();
@@ -52,6 +55,10 @@ public class CommandLineBoard implements Board
             System.out.println(who.toString());
         });
 
+        //==============================================================================================================
+        // Where command.
+        //==============================================================================================================
+
         this.commandMap.put("where", args -> {
             final StringBuilder where = new StringBuilder();
 
@@ -60,6 +67,8 @@ public class CommandLineBoard implements Board
 
             where.append("in " + room.getName());
 
+            // Format where message based on the room the player is in.
+            // Trailer and office cannot be wrapped and thus are disregarded in this portion.
             if (!(AssetManager.getInstance().getTrailerRoom().equals(room)
                     || AssetManager.getInstance().getUpgradeRoom().equals(room))) {
                 if (room.isSceneFinished()) {
@@ -75,12 +84,21 @@ public class CommandLineBoard implements Board
             System.out.println(where);
         });
 
+        //==============================================================================================================
+        // Moves command.
+        //==============================================================================================================
+
         this.commandMap.put("moves", args -> {
             final Collection<Actionable> actions = this.game.getCurrentPlayerPossibleActions();
             System.out.println("Possible actions: " + actions);
         });
 
+        //==============================================================================================================
+        // Move command.
+        //==============================================================================================================
+
         this.commandMap.put("move", args -> {
+            // Check if move is a valid command.
             if (!this.game.getCurrentPlayerPossibleActions().contains(Actionable.MOVE)) {
                 System.out.println("You cannot move right now.");
                 return;
@@ -91,38 +109,51 @@ public class CommandLineBoard implements Board
                 return;
             }
 
+            // Format command line input arguments and grab room name.
             final String roomName = Arrays.toString(args).replaceAll("[\\[\\],]", "");
             final Room room = AssetManager.getInstance().getRoomMap().get(roomName.toLowerCase().replace("_", " "));
             final Room current = this.game.getCurrentPlayer().getPlayer().getCurrentRoom();
 
+            // Verify room exists.
             if (room == null) {
                 System.out.println("No such room. Here are a list of rooms: "
                         + current.getAdjacentRooms().stream().map(Room::getName).collect(Collectors.toList()));
                 return;
             }
 
+            // Check adjacency.
             if (!current.isAdjacentTo(room)) {
                 System.out.println("You are not next to this room.");
                 return;
             }
 
+            // Invoke game move.
             this.game.currentPlayerMove(room);
         });
 
+        //==============================================================================================================
+        // Work command.
+        //==============================================================================================================
+
         this.commandMap.put("work", args -> {
+            // Check if work is a valid command.
             if (!this.game.getCurrentPlayerPossibleActions().contains(Actionable.TAKE_ROLE)) {
                 System.out.println("You cannot take a role right now.");
                 return;
             }
 
+            // Validate input exists.
             if (args.length == 0) {
                 System.out.println("No role entered.");
                 return;
             }
 
+            // Format arguments into role name.
             final String roleName = Arrays.toString(args).replaceAll("[\\[\\],]", "");
-            final Collection<Role> actable = this.game.getActableRolesByPlayer(this.game.getCurrentPlayer().getPlayer());
+            final Collection<Role> actable = this.game.getActableRolesByPlayer(
+                    this.game.getCurrentPlayer().getPlayer());
 
+            // Look for role based on a list of actable roles.
             for (final Role role : actable) {
                 if (!role.getName().equalsIgnoreCase(roleName)) {
                     continue;
@@ -132,24 +163,33 @@ public class CommandLineBoard implements Board
                 return;
             }
 
-            System.out.println("No such role on card: "
+            // If no valid role was found.
+            System.out.println("No such valid role or role is unavailable: "
                     + roleName + ", available roles: "
                     + actable.stream().map(Role::getName).collect(Collectors.toList()));
         });
 
+        //==============================================================================================================
+        // Upgrade command.
+        //==============================================================================================================
+
         this.commandMap.put("upgrade", args -> {
+            // Check if upgrade is a valid command.
             if (!this.game.getCurrentPlayerPossibleActions().contains(Actionable.UPGRADE)) {
                 System.out.println("You cannot upgrade right now.");
                 return;
             }
 
+            // Validate argument count.
             if (args.length < 2) {
                 System.out.println("Format: upgrade [$/cr] (level)");
                 return;
             }
 
+            // Parse payment method.
             final String method = args[0];
 
+            // Load rank being upgraded to.
             Integer rank;
             try {
                 rank = Integer.parseInt(args[1]);
@@ -161,11 +201,13 @@ public class CommandLineBoard implements Board
             final Player player = this.game.getCurrentPlayer().getPlayer();
             final int currentRank = player.getRank();
 
+            // Check rank against bounds.
             if (rank > 6 || rank <= 1 || currentRank >= rank) {
                 System.out.println("You must enter a rank between " + (currentRank + 1) + " and 6");
                 return;
             }
 
+            // Process payment and upgrade based on method.
             if (method.equals("$")) {
                 final int dollars = player.getDollarCount();
                 final int dollarsNeeded = AssetManager.getDollarUpgradeCost(rank);
@@ -175,6 +217,7 @@ public class CommandLineBoard implements Board
                     return;
                 }
 
+                // Fire game event to upgrade with dollars.
                 this.game.currentPlayerUpgrade(false, rank);
             } else if (method.equalsIgnoreCase("cr")) {
                 final int credits = player.getCreditCount();
@@ -185,14 +228,21 @@ public class CommandLineBoard implements Board
                     return;
                 }
 
+                // Fire game event to upgrade with credits.
                 this.game.currentPlayerUpgrade(true, rank);
             } else {
+                // If an invalid method was entered.
                 System.out.println("No such upgrade method, must be either $ or cr");
                 return;
             }
         });
 
+        //==============================================================================================================
+        // Rehearse command.
+        //==============================================================================================================
+
         this.commandMap.put("rehearse", args -> {
+            // Check if rehearse is a valid command.
             if (!this.game.getCurrentPlayerPossibleActions().contains(Actionable.REHEARSE)) {
                 System.out.println("You cannot rehearse right now.");
                 return;
@@ -201,7 +251,12 @@ public class CommandLineBoard implements Board
             this.game.currentPlayerRehearse();
         });
 
+        //==============================================================================================================
+        // Act command.
+        //==============================================================================================================
+
         this.commandMap.put("act", args -> {
+            // Check if act is a valid action.
             if (!this.game.getCurrentPlayerPossibleActions().contains(Actionable.ACT)) {
                 System.out.println("You cannot act right now.");
                 return;
@@ -210,10 +265,16 @@ public class CommandLineBoard implements Board
             this.game.currentPlayerAct();
         });
 
-        this.commandMap.put("end", args -> {
-            this.game.currentPlayerEndTurn();
-        });
+        //==============================================================================================================
+        // End turn command.
+        //==============================================================================================================
+
+        this.commandMap.put("end", args -> this.game.currentPlayerEndTurn());
     }
+
+    //==================================================================================================================
+    // Console IO
+    //==================================================================================================================
 
     public void setupConsoleListener ()
     {
@@ -262,6 +323,10 @@ public class CommandLineBoard implements Board
         this.consoleScanner.close();
     }
 
+    //==================================================================================================================
+    // Game interactions.
+    //==================================================================================================================
+
     @Override
     public void refreshBoard ()
     {
@@ -269,7 +334,10 @@ public class CommandLineBoard implements Board
     }
 
     @Override
-    public void sceneWrapped (final Room room, final Map<Player, Collection<Integer>> onCardPayouts, final Map<Player, Integer> offCardPayouts)
+    public void sceneWrapped (
+            final Room room,
+            final Map<Player, Collection<Integer>> onCardPayouts,
+            final Map<Player, Integer> offCardPayouts)
     {
         final Card card = room.getCard();
         System.out.println("That's a wrap for " + card.getName() + " in " + room.getName());
@@ -279,7 +347,8 @@ public class CommandLineBoard implements Board
             final Collection<Integer> payouts = onCardPayouts.get(player);
             final int sum = payouts.stream().mapToInt(Integer::intValue).sum();
 
-            System.out.println(" - " + player.getColor().name().toLowerCase() + " received the rolls " + payouts + " and gets $" + sum);
+            System.out.println(" - " + player.getColor().name().toLowerCase() + " received the rolls "
+                    + payouts + " and gets $" + sum);
         }
 
         for (final Player player : offCardPayouts.keySet()) {
@@ -310,7 +379,8 @@ public class CommandLineBoard implements Board
         System.out.println("Here are the player rankings:");
         int idx = 1;
         for (final Player player : winners) {
-            System.out.println(" " + idx + ". " + player.getColor().name().toLowerCase() + " scored " + player.getScore());
+            System.out.println(" " + idx + ". " + player.getColor().name().toLowerCase() + " scored "
+                    + player.getScore());
         }
     }
 
@@ -349,8 +419,13 @@ public class CommandLineBoard implements Board
     @Override
     public void playerUpgraded (final Player player, final boolean usedCredits, final int rankUpgradingTo)
     {
-        System.out.println(player.getColor().name().toLowerCase() + " upgraded to " + rankUpgradingTo + " with " + (usedCredits ? "credits" : "dollars"));
+        System.out.println(player.getColor().name().toLowerCase() + " upgraded to " + rankUpgradingTo
+                + " with " + (usedCredits ? "credits" : "dollars"));
     }
+
+    //==================================================================================================================
+    // Command interface.
+    //==================================================================================================================
 
     private interface Command
     {

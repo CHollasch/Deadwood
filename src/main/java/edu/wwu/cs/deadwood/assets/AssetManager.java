@@ -27,6 +27,7 @@ public class AssetManager
 
     private static final Map<Integer, Pair<Integer, Integer>> upgradeCostTable = new HashMap<Integer, Pair<Integer, Integer>>() {
         {
+            // Standardized map of upgrade costs.
             put(2, 4, 5);
             put(3, 10, 10);
             put(4, 18, 15);
@@ -40,11 +41,6 @@ public class AssetManager
         }
     };
 
-    public static Map<Integer, Pair<Integer, Integer>> getUpgradeCostTable ()
-    {
-        return AssetManager.upgradeCostTable;
-    }
-
     public static int getDollarUpgradeCost (final int rank)
     {
         return AssetManager.upgradeCostTable.containsKey(rank) ? AssetManager.upgradeCostTable.get(rank).getFirst() : -1;
@@ -55,7 +51,15 @@ public class AssetManager
         return AssetManager.upgradeCostTable.containsKey(rank) ? AssetManager.upgradeCostTable.get(rank).getSecond() : -1;
     }
 
+    //==================================================================================================================
+    // Static context singleton
+    //==================================================================================================================
+
     private static AssetManager instance;
+
+    //==================================================================================================================
+    // Local variables
+    //==================================================================================================================
 
     private final File assetDirectory;
     private final DocumentBuilder documentBuilder;
@@ -65,6 +69,10 @@ public class AssetManager
 
     private Room trailerRoom;
     private Room upgradeRoom;
+
+    //==================================================================================================================
+    // Singleton constructor.
+    //==================================================================================================================
 
     private AssetManager (final File assetDirectory) throws Exception
     {
@@ -79,6 +87,10 @@ public class AssetManager
         loadAssets();
     }
 
+    //==================================================================================================================
+    // Asset loading and creation.
+    //==================================================================================================================
+
     private void loadAssets () throws IOException, SAXException
     {
         loadBoard();
@@ -92,10 +104,12 @@ public class AssetManager
 
         final Map<String, PartiallyLoadedRoom> partiallyLoadedRoomMap = new HashMap<>();
 
+        // Extract child nodes from root.
         for (final Node node : getElementTypeNodes(root)) {
             final String nodeName = node.getNodeName();
 
             final PartiallyLoadedRoom room;
+            // Load the room based on room type, set/trailer/office.
             if (nodeName.equals("set")) {
                 room = loadStandardRoom(node);
             }
@@ -110,9 +124,11 @@ public class AssetManager
                 this.upgradeRoom = room.room;
             }
 
+            // Add to partially loaded map as we have to link adjacent room objects.
             partiallyLoadedRoomMap.put(room.room.getName(), room);
         }
 
+        // Link all adjacent room POJOs.
         for (final String roomName : partiallyLoadedRoomMap.keySet()) {
             final PartiallyLoadedRoom value = partiallyLoadedRoomMap.get(roomName);
             final Collection<String> adjacentList = value.neighbors;
@@ -128,6 +144,7 @@ public class AssetManager
 
     private PartiallyLoadedRoom loadStandardRoom (final Node node)
     {
+        // Extract room data and create a room object.
         final String name = node.getAttributes().getNamedItem("name").getNodeValue();
 
         final Node neighbors = extractFirstOccurance(node, "neighbors");
@@ -137,6 +154,7 @@ public class AssetManager
         final Room room = new Room(Room.Type.STAGE, name, getElementTypeNodes(takes).size());
         final Collection<String> neighborNames = getNeighbors(neighbors);
 
+        // Return a partially loaded room (no adjacent rooms actually linked).
         final PartiallyLoadedRoom plr = new PartiallyLoadedRoom(room, neighborNames);
         loadParts(room, parts);
 
@@ -145,6 +163,7 @@ public class AssetManager
 
     private PartiallyLoadedRoom loadSpecialRoom (final Node node, final Room.Type type, final String name)
     {
+        // Create special room (trailer / upgrade room).
         final Room room = new Room(type, name, 0);
         final Collection<String> neighborNames = getNeighbors(extractFirstOccurance(node, "neighbors"));
 
@@ -153,6 +172,7 @@ public class AssetManager
 
     private void loadParts (final Room room, final Node parts)
     {
+        // Load all parts for a room based on the parts node in the board xml.
         for (final Node part : getElementTypeNodes(parts)) {
             final String name = part.getAttributes().getNamedItem("name").getNodeValue();
             final String level = part.getAttributes().getNamedItem("level").getNodeValue();
@@ -164,6 +184,7 @@ public class AssetManager
 
     private Collection<String> getNeighbors (final Node node)
     {
+        // Get neighbors based on node values.
         final Collection<String> neighbors = new HashSet<>();
 
         for (final Node element : getElementTypeNodes(node)) {
@@ -180,7 +201,9 @@ public class AssetManager
 
         final Collection<Node> cards = getElementTypeNodes(root);
 
+        // Get all element nodes for cards.
         for (final Node cardNode : cards) {
+            // Extract card attributes and create cards.
             final String name = cardNode.getAttributes().getNamedItem("name").getNodeValue();
             final int budget = Integer.parseInt(cardNode.getAttributes().getNamedItem("budget").getNodeValue());
 
@@ -189,6 +212,7 @@ public class AssetManager
 
             final Collection<Role> roles = new HashSet<>();
 
+            // Load parts into the card objects.
             for (final Node potentialPart : getElementTypeNodes(cardNode)) {
                 if (potentialPart.getNodeName().equals("part")) {
                     final String partName = potentialPart.getAttributes().getNamedItem("name").getNodeValue();
@@ -198,12 +222,18 @@ public class AssetManager
                 }
             }
 
+            // Format the description in the XML tag.
             final String description = sceneNode.getTextContent().replace("\n", "").replaceAll("[ ]{2,}", " ").trim();
 
+            // Create card and insert into card map.
             final Card card = new Card(name, description, sceneNumber, budget, roles);
             this.cardMap.put(name, card);
         }
     }
+
+    //==================================================================================================================
+    // Private API Utility.
+    //==================================================================================================================
 
     private Node extractFirstOccurance (final Node parent, final String elementTag)
     {
@@ -225,6 +255,7 @@ public class AssetManager
         for (int i = 0; i < root.getChildNodes().getLength(); ++i) {
             final Node node = root.getChildNodes().item(i);
 
+            // Ignore text nodes and other node types.
             if (node.getNodeType() == Node.ELEMENT_NODE) {
                 nodes.add(node);
             }
@@ -232,6 +263,10 @@ public class AssetManager
 
         return nodes;
     }
+
+    //==================================================================================================================
+    // Public API.
+    //==================================================================================================================
 
     public Map<String, Card> getCardMap ()
     {
@@ -253,6 +288,10 @@ public class AssetManager
         return this.upgradeRoom;
     }
 
+    //==================================================================================================================
+    // Static access.
+    //==================================================================================================================
+
     public static AssetManager getInstance ()
     {
         return AssetManager.instance;
@@ -262,6 +301,10 @@ public class AssetManager
     {
         AssetManager.instance = new AssetManager(assetDirectory);
     }
+
+    //==================================================================================================================
+    // Nested classes.
+    //==================================================================================================================
 
     private static class PartiallyLoadedRoom
     {

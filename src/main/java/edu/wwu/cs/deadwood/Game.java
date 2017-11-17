@@ -17,6 +17,10 @@ import java.util.stream.Collectors;
  */
 public class Game
 {
+    //==================================================================================================================
+    // Local variables.
+    //==================================================================================================================
+
     private Deadwood deadwood;
     private Collection<Player> players;
     private PlayerTurn currentPlayer;
@@ -26,6 +30,10 @@ public class Game
 
     private boolean playerUsedMove;
     private boolean playerUsedTurn;
+
+    //==================================================================================================================
+    // Constructors.
+    //==================================================================================================================
 
     public Game (final Deadwood deadwood)
     {
@@ -39,11 +47,22 @@ public class Game
         this.playerUsedTurn = false;
     }
 
+    //==================================================================================================================
+    // Game setup and accessor logic.
+    //==================================================================================================================
+
     public void initializeGame (final Board gameBoard, final int playerCount)
     {
         this.gameBoard = gameBoard;
         this.daysLeft = 4;
 
+        // Create player list with player colors in ordinal order.
+        for (int i = 0; i < playerCount; ++i) {
+            final Player.Color color = Player.Color.values()[i];
+            this.players.add(new Player(color));
+        }
+
+        // Apply special game starting properties based on player count.
         switch (playerCount) {
             case 2:
             case 3:
@@ -61,11 +80,7 @@ public class Game
                 break;
         }
 
-        for (int i = 0; i < playerCount; ++i) {
-            final Player.Color color = Player.Color.values()[i];
-            this.players.add(new Player(color));
-        }
-
+        // Shuffle the players to get a random player order.
         final ArrayList<Player> randomPlayerOrder = new ArrayList<>(this.players);
         Collections.shuffle(randomPlayerOrder);
 
@@ -88,25 +103,32 @@ public class Game
             previous.setNext(getCurrentPlayer());
         }
 
+        // Wrap the day and mark wrap as initialization.
+        // Wrapping the day will setup the cards and player location states.
         wrapDay(true);
     }
 
     public Collection<Actionable> getCurrentPlayerPossibleActions ()
     {
         final HashSet<Actionable> actionables = new HashSet<>();
+
+        // Players can always end their turn.
         actionables.add(Actionable.END_TURN);
 
+        // If the player used their turn, they can only end their turn.
         if (this.playerUsedTurn) {
             return actionables;
-        }
-
-        if (!this.playerUsedMove) {
-            actionables.add(Actionable.MOVE);
         }
 
         final Player player = getCurrentPlayer().getPlayer();
         final Room room = player.getCurrentRoom();
 
+        // If the player hasn't already moved and they are not on a role, they can move.
+        if (!this.playerUsedMove && player.getActiveRole() == null) {
+            actionables.add(Actionable.MOVE);
+        }
+
+        // If the player is in the office and they aren't the highest rank, they can upgrade.
         final int playerRank = player.getRank();
         if (AssetManager.getInstance().getUpgradeRoom().equals(room)
                 && AssetManager.getCreditUpgradeCost(playerRank + 1) > 0) {
@@ -114,22 +136,26 @@ public class Game
             return actionables;
         }
 
+        // If the room the player is in is wrapped, nothing else they can do.
         if (room.isSceneFinished()) {
             return actionables;
         }
 
         if (!AssetManager.getInstance().getTrailerRoom().equals(room)) {
+            // If the player has an active role, they can act.
             if (player.getActiveRole() != null) {
                 actionables.add(Actionable.ACT);
 
                 final Card card = room.getCard();
 
+                // If they have room for practice chips, they can rehearse.
                 if (card != null && player.getPracticeChips() + 1 < card.getCardBudget()) {
                     actionables.add(Actionable.REHEARSE);
                 }
             } else {
                 final Collection<Role> activeRoles = getActableRolesByPlayer(player);
 
+                // If there is a role available based on the players rank, they can take a role.
                 if (activeRoles.size() > 0) {
                     actionables.add(Actionable.TAKE_ROLE);
                 }
@@ -146,6 +172,8 @@ public class Game
 
         final Collection<Role> activeRoles = new HashSet<>();
 
+        // Look for all roles on and off the card for the player.
+        // Filter by the roles minimum rank requirement.
         if (card != null) {
             activeRoles.addAll(room.getExtraRoles()
                     .stream()
@@ -158,6 +186,7 @@ public class Game
                     .collect(Collectors.toList()));
         }
 
+        // Remove any roles that have been taken by other players.
         for (final Player otherPlayer : getPlayers()) {
             if (otherPlayer.equals(player) || otherPlayer.getActiveRole() == null) {
                 continue;
@@ -169,6 +198,10 @@ public class Game
         return activeRoles;
     }
 
+    //==================================================================================================================
+    // Game logic performers.
+    //==================================================================================================================
+
     public void currentPlayerAct ()
     {
         final Player player = getCurrentPlayer().getPlayer();
@@ -177,11 +210,13 @@ public class Game
         final int practiceChips = player.getPracticeChips();
         final int diceRoll = rollDice();
 
+        // Successful act determinant.
         final boolean wasSuccessful = player.getCurrentRoom().getCard().getCardBudget() <= diceRoll + practiceChips;
 
         final int cashReward;
         final int creditReward;
 
+        // Calculate rewards based on role type.
         if (role.isExtraRole()) {
             creditReward = wasSuccessful ? 1 : 0;
             cashReward = 1;
@@ -192,6 +227,7 @@ public class Game
 
         this.playerUsedTurn = true;
 
+        // Increment shot counter if success.
         if (wasSuccessful) {
             player.getCurrentRoom().setCurrentShotCounter(player.getCurrentRoom().getCurrentShotCounter() + 1);
         }
@@ -199,8 +235,10 @@ public class Game
         player.setCreditCount(player.getCreditCount() + creditReward);
         player.setDollarCount(player.getDollarCount() + cashReward);
 
+        // Invoke game board listeners.
         this.gameBoard.playerActed(player, wasSuccessful, diceRoll);
 
+        // Check to see if we need to wrap the scene.
         if (player.getCurrentRoom().getCurrentShotCounter() >= player.getCurrentRoom().getTotalShotMarkers()) {
             wrapScene(player.getCurrentRoom());
         }
@@ -250,6 +288,7 @@ public class Game
 
         player.setRank(rank);
 
+        // Determine players new credit/dollar combos based on upgrade type.
         if (useCredits) {
             player.setCreditCount(player.getCreditCount() - AssetManager.getCreditUpgradeCost(rank));
         } else {
@@ -259,6 +298,10 @@ public class Game
         this.playerUsedTurn = true;
         this.gameBoard.playerUpgraded(player, useCredits, rank);
     }
+
+    //==================================================================================================================
+    // Scene and day wrapping.
+    //==================================================================================================================
 
     public void wrapScene (final Room room)
     {
@@ -399,6 +442,10 @@ public class Game
         }
     }
 
+    //==================================================================================================================
+    // Getters.
+    //==================================================================================================================
+
     public Deadwood getDeadwood ()
     {
         return this.deadwood;
@@ -424,10 +471,18 @@ public class Game
         return this.daysLeft;
     }
 
+    //==================================================================================================================
+    // Private utility API.
+    //==================================================================================================================
+
     private int rollDice ()
     {
         return (int) (Math.random() * 6) + 1;
     }
+
+    //==================================================================================================================
+    // Player turn nested class.
+    //==================================================================================================================
 
     public static class PlayerTurn
     {

@@ -1,13 +1,3 @@
-/*
- * Copyright (C) 2017 Deadwood - All Rights Reserved
- *
- * Unauthorized copying of this file, via any median is strictly prohibited
- * proprietary and confidential. For more information, please contact me at
- * connor@hollasch.net
- *
- * Written by Connor Hollasch <connor@hollasch.net>, October 2017
- */
-
 package edu.wwu.cs.deadwood.board;
 
 import edu.wwu.cs.deadwood.Player;
@@ -18,6 +8,8 @@ import java.util.Collection;
 import java.util.Map;
 
 /**
+ * Models a view for any Deadwood game.
+ *
  * @author Connor Hollasch
  * @since October 31, 1:51 PM
  */
