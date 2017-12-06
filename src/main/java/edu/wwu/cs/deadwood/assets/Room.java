@@ -1,7 +1,11 @@
 package edu.wwu.cs.deadwood.assets;
 
+import edu.wwu.cs.deadwood.util.Location;
+
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -23,6 +27,9 @@ public class Room
     private final Collection<Room> adjacentRooms;
     private final Collection<Role> extraRoles;
 
+    private final Location cardLocation;
+    private final Map<Integer, Location> shotMarkerLocations;
+
     private Card card;
     private boolean sceneFinished;
 
@@ -30,15 +37,17 @@ public class Room
     // Constructors.
     //==================================================================================================================
 
-    public Room (final Type roomType, final String name, final int totalShotMarkers)
+    public Room (final Type roomType, final String name, final int totalShotMarkers, final Location cardLocation)
     {
         this.roomType = roomType;
         this.name = name;
         this.totalShotMarkers = totalShotMarkers;
+        this.cardLocation = cardLocation;
 
         this.currentShotCounter = 0;
         this.adjacentRooms = new HashSet<>();
         this.extraRoles = new HashSet<>();
+        this.shotMarkerLocations = new HashMap<>();
         this.card = null;
         this.sceneFinished = false;
     }
@@ -89,6 +98,16 @@ public class Room
     public Collection<Role> getExtraRoles ()
     {
         return this.extraRoles;
+    }
+
+    public Map<Integer, Location> getShotMarkerLocations ()
+    {
+        return this.shotMarkerLocations;
+    }
+
+    public Location getCardLocation ()
+    {
+        return this.cardLocation;
     }
 
     public Card getCard ()

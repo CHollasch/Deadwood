@@ -17,7 +17,9 @@ import java.util.Map;
 public class GUIBoard implements Board
 {
     private final Game game;
+
     private JFrame frame;
+    private BoardPanel boardPanel;
 
     public GUIBoard (final Game game)
     {
@@ -29,7 +31,7 @@ public class GUIBoard implements Board
         this.frame = new JFrame("Deadwood");
         this.frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 
-        this.frame.add(new BoardPanel());
+        this.frame.add(this.boardPanel = new BoardPanel(this.game));
         this.frame.pack();
 
         this.frame.setVisible(true);
@@ -43,7 +45,7 @@ public class GUIBoard implements Board
     @Override
     public void refreshBoard ()
     {
-
+        this.boardPanel.repaint();
     }
 
     @Override
