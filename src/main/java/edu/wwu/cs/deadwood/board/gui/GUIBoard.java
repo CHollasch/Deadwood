@@ -30,6 +30,7 @@ public class GUIBoard implements Board
         this.frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 
         this.frame.add(new BoardPanel());
+        this.frame.add(new ActionPanel(game, this));
         this.frame.pack();
 
         this.frame.setVisible(true);
