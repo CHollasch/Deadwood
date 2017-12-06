@@ -1,5 +1,7 @@
 package edu.wwu.cs.deadwood.assets;
 
+import edu.wwu.cs.deadwood.util.Location;
+
 /**
  * @author Connor Hollasch
  * @since October 31, 1:44 PM
@@ -16,6 +18,8 @@ public class Role
     private final int minimumRank;
     private final boolean extraRole;
 
+    private Location location;
+
     //==================================================================================================================
     // Constructors.
     //==================================================================================================================
@@ -24,12 +28,15 @@ public class Role
             final String name,
             final String line,
             final int minimumRank,
-            final boolean extraRole)
+            final boolean extraRole,
+            final Location location)
     {
         this.name = name;
         this.line = line;
         this.minimumRank = minimumRank;
         this.extraRole = extraRole;
+
+        this.location = location;
     }
 
     //==================================================================================================================
@@ -54,6 +61,11 @@ public class Role
     public boolean isExtraRole ()
     {
         return this.extraRole;
+    }
+
+    public Location getLocation ()
+    {
+        return this.location;
     }
 
     //==================================================================================================================

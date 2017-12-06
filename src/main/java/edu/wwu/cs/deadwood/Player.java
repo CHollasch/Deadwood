@@ -119,13 +119,25 @@ public class Player
 
     public enum Color
     {
-        BLUE,
-        CYAN,
-        GREEN,
-        ORANGE,
-        PINK,
-        RED,
-        VIOLET,
-        YELLOW
+        BLUE("b"),
+        CYAN("c"),
+        GREEN("g"),
+        ORANGE("o"),
+        PINK("p"),
+        RED("r"),
+        VIOLET("v"),
+        YELLOW("y");
+
+        private String prefix;
+
+        Color (final String prefix)
+        {
+            this.prefix = prefix;
+        }
+
+        public String getPrefix ()
+        {
+            return this.prefix;
+        }
     }
 }

@@ -54,7 +54,7 @@ public class ActionPanel extends JPanel
             adjacentRooms = game.getCurrentPlayer().getPlayer().getCurrentRoom().getAdjacentRooms();
             for (Room room: adjacentRooms) {
                 menuPopup.add(new JMenuItem(room.getName()));
-                menuPopup.addPopupMenuListener();
+                //menuPopup.addPopupMenuListener();
             }
 
             menuPopup.setVisible(true);
