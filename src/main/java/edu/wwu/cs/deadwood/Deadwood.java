@@ -2,6 +2,7 @@ package edu.wwu.cs.deadwood;
 
 import edu.wwu.cs.deadwood.assets.AssetManager;
 import edu.wwu.cs.deadwood.board.CommandLineBoard;
+import edu.wwu.cs.deadwood.board.gui.GUIBoard;
 
 import java.io.File;
 
@@ -44,11 +45,24 @@ public class Deadwood
     public void startGame ()
     {
         this.game = new Game(this);
+        startGUIGame();
+    }
+
+    private void startCLIGame ()
+    {
 
         final CommandLineBoard cliBoard = new CommandLineBoard(this.game);
         this.game.initializeGame(cliBoard, this.playerCount);
 
         cliBoard.setupConsoleListener(); // Event loop.
+    }
+
+    private void startGUIGame ()
+    {
+        final GUIBoard guiBoard = new GUIBoard(this.game);
+        this.game.initializeGame(guiBoard, this.playerCount);
+
+        guiBoard.displayWindow();
     }
 
     public void onGameEnd ()

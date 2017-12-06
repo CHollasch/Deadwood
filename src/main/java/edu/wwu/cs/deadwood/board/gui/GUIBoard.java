@@ -1,8 +1,10 @@
-package edu.wwu.cs.deadwood.board;
+package edu.wwu.cs.deadwood.board.gui;
 
+import edu.wwu.cs.deadwood.Game;
 import edu.wwu.cs.deadwood.Player;
 import edu.wwu.cs.deadwood.assets.Role;
 import edu.wwu.cs.deadwood.assets.Room;
+import edu.wwu.cs.deadwood.board.Board;
 
 import javax.swing.*;
 import java.util.Collection;
@@ -14,11 +16,23 @@ import java.util.Map;
  */
 public class GUIBoard implements Board
 {
+    private final Game game;
     private JFrame frame;
+
+    public GUIBoard (final Game game)
+    {
+        this.game = game;
+    }
 
     public void displayWindow ()
     {
-        // Display the frame & initialize.
+        this.frame = new JFrame("Deadwood");
+        this.frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+
+        this.frame.add(new BoardPanel());
+        this.frame.pack();
+
+        this.frame.setVisible(true);
     }
 
     public void destroyWindow ()
