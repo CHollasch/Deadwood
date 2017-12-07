@@ -4,6 +4,7 @@ import edu.wwu.cs.deadwood.assets.AssetManager;
 import edu.wwu.cs.deadwood.board.CommandLineBoard;
 import edu.wwu.cs.deadwood.board.gui.GUIBoard;
 
+import javax.swing.*;
 import java.io.File;
 
 /**
@@ -26,7 +27,16 @@ public class Deadwood
     private Deadwood (final String... args) throws Exception
     {
         try {
-            this.playerCount = Integer.parseInt(args[0]);
+            this.playerCount = JOptionPane.showOptionDialog(
+                    null,
+                    "Pick a number of players",
+                    "Welcome to Deadwood",
+                    JOptionPane.PLAIN_MESSAGE,
+                    JOptionPane.QUESTION_MESSAGE,
+                    null,
+                    new Integer[] {2, 3, 4, 5, 6, 7, 8},
+                    2) + 2;
+
         } catch (final Exception e) {
             System.out.println("First argument must be the player count integer!");
             System.exit(-1);

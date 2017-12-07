@@ -119,25 +119,32 @@ public class Player
 
     public enum Color
     {
-        BLUE("b"),
-        CYAN("c"),
-        GREEN("g"),
-        ORANGE("o"),
-        PINK("p"),
-        RED("r"),
-        VIOLET("v"),
-        YELLOW("y");
+        BLUE("b", "0061ff"),
+        CYAN("c", "00d8ff"),
+        GREEN("g", "13d61d"),
+        ORANGE("o", "d68112"),
+        PINK("p", "f20497"),
+        RED("r", "f10303"),
+        VIOLET("v", "9102f0"),
+        YELLOW("y", "fcff4f");
 
         private String prefix;
+        private String hex;
 
-        Color (final String prefix)
+        Color (final String prefix, final String hex)
         {
             this.prefix = prefix;
+            this.hex = hex;
         }
 
         public String getPrefix ()
         {
             return this.prefix;
+        }
+
+        public String getHex ()
+        {
+            return this.hex;
         }
 
         public static Color getByPrefix (final String prefix)

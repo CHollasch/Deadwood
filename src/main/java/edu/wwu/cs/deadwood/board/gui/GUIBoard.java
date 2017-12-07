@@ -76,6 +76,16 @@ public class GUIBoard implements Board
         // Destroy the frame.
     }
 
+    public ActionPanel getActionPanel ()
+    {
+        return this.actionPanel;
+    }
+
+    public BoardPanel getBoardPanel ()
+    {
+        return this.boardPanel;
+    }
+
     @Override
     public void refreshBoard ()
     {
@@ -107,6 +117,16 @@ public class GUIBoard implements Board
     @Override
     public void playerActed (final Player player, final boolean successful, final int diceRoll)
     {
+        JOptionPane.showOptionDialog(
+                null,
+                "Act was " + (successful ? "successful" : "unsuccessful") +" (rolled a " + diceRoll + ")",
+                "Act results",
+                JOptionPane.PLAIN_MESSAGE,
+                JOptionPane.INFORMATION_MESSAGE,
+                null,
+                new String[] {"Ok"},
+                "Ok");
+
         this.actionPanel.update();
         this.boardPanel.repaint();
     }

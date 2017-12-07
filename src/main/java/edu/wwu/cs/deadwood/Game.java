@@ -26,6 +26,7 @@ public class Game
     private PlayerTurn currentPlayer;
     private Board gameBoard;
 
+    private int maxDays;
     private int daysLeft;
 
     private boolean playerUsedMove;
@@ -56,10 +57,14 @@ public class Game
         this.gameBoard = gameBoard;
         this.daysLeft = 4;
 
-        // Create player list with player colors in ordinal order.
+        // Create player list with random colors.
+        final List<Player.Color> colors = new ArrayList<>(Arrays.asList(Player.Color.values()));
+        Collections.shuffle(colors);
+
+        final Iterator<Player.Color> colorIterator = colors.iterator();
         for (int i = 0; i < playerCount; ++i) {
-            final Player.Color color = Player.Color.values()[i];
-            this.players.put(color, new Player(color));
+            final Player.Color playerColor = colorIterator.next();
+            this.players.put(playerColor, new Player(playerColor));
         }
 
         // Apply special game starting properties based on player count.
@@ -102,6 +107,8 @@ public class Game
         if (previous != null) {
             previous.setNext(getCurrentPlayer());
         }
+
+        this.maxDays = this.daysLeft;
 
         // Wrap the day and mark wrap as initialization.
         // Wrapping the day will setup the cards and player location states.
@@ -502,6 +509,11 @@ public class Game
     public int getDaysLeft ()
     {
         return this.daysLeft;
+    }
+
+    public int getMaxDays ()
+    {
+        return this.maxDays;
     }
 
     //==================================================================================================================
