@@ -22,7 +22,7 @@ public class Game
     //==================================================================================================================
 
     private Deadwood deadwood;
-    private Collection<Player> players;
+    private Map<Player.Color, Player> players;
     private PlayerTurn currentPlayer;
     private Board gameBoard;
 
@@ -39,7 +39,7 @@ public class Game
     {
         this.deadwood = deadwood;
 
-        this.players = new HashSet<>();
+        this.players = new HashMap<>();
         this.currentPlayer = null;
         this.gameBoard = null;
 
@@ -59,7 +59,7 @@ public class Game
         // Create player list with player colors in ordinal order.
         for (int i = 0; i < playerCount; ++i) {
             final Player.Color color = Player.Color.values()[i];
-            this.players.add(new Player(color));
+            this.players.put(color, new Player(color));
         }
 
         // Apply special game starting properties based on player count.
@@ -69,19 +69,19 @@ public class Game
                 this.daysLeft = 3;
                 break;
             case 5:
-                this.players.forEach(p -> p.setCreditCount(2));
+                this.players.values().forEach(p -> p.setCreditCount(2));
                 break;
             case 6:
-                this.players.forEach(p -> p.setCreditCount(4));
+                this.players.values().forEach(p -> p.setCreditCount(4));
                 break;
             case 7:
             case 8:
-                this.players.forEach(p -> p.setRank(2));
+                this.players.values().forEach(p -> p.setRank(2));
                 break;
         }
 
         // Shuffle the players to get a random player order.
-        final ArrayList<Player> randomPlayerOrder = new ArrayList<>(this.players);
+        final ArrayList<Player> randomPlayerOrder = new ArrayList<>(this.players.values());
         Collections.shuffle(randomPlayerOrder);
 
         PlayerTurn previous = null;
@@ -431,7 +431,7 @@ public class Game
     public void wrapDay (final boolean init)
     {
         // Reset states for all players and rooms to default.
-        this.players.forEach(p -> p.setCurrentRoom(AssetManager.getInstance().getTrailerRoom()));
+        this.players.values().forEach(p -> p.setCurrentRoom(AssetManager.getInstance().getTrailerRoom()));
         AssetManager.getInstance().getRoomMap().values().forEach(r -> {
             r.setCurrentShotCounter(0);
             r.setCard(null);
@@ -469,6 +469,11 @@ public class Game
     }
 
     public Collection<Player> getPlayers ()
+    {
+        return this.players.values();
+    }
+
+    public Map<Player.Color, Player> getPlayerColorMap ()
     {
         return this.players;
     }

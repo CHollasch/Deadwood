@@ -22,6 +22,9 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 
 /**
  * @author Connor Hollasch
@@ -99,8 +102,29 @@ public class BoardPanel extends JPanel
         }
 
         // Draw all players and their current locations.
-        for (final Player player : this.game.getPlayers()) {
+        for (final Player.Color color : Player.Color.values()) {
+            final Player player = this.game.getPlayerColorMap().get(color);
 
+            if (player == null) {
+                continue;
+            }
+
+            final Room currentRoom = player.getCurrentRoom();
+            final Image playerImage = AssetManager.getInstance().getPlayerDice(color, player.getRank());
+
+            if (player.getActiveRole() != null) {
+                final Role role = player.getActiveRole();
+                if (role.isExtraRole()) {
+                    drawImageWithScaling(g, playerImage, role.getLocation());
+                } else {
+                    drawForRoleOnCard(g, playerImage, currentRoom.getCardLocation(), role);
+                }
+            } else {
+                if (currentRoom.getPlayerLocations().containsKey(color)) {
+                    final Location drawTo = currentRoom.getPlayerLocations().get(color);
+                    drawImageWithScaling(g, playerImage, drawTo);
+                }
+            }
         }
     }
 
