@@ -44,20 +44,15 @@ public class BoardPanel extends JPanel
     {
         this.game = game;
         this.setPreferredSize(new Dimension(this.width = SCALE_WIDTH, this.height = SCALE_HEIGHT));
+    }
 
-        addComponentListener(new ComponentListener()
-        {
-            @Override
-            public void componentResized (final ComponentEvent componentEvent)
-            {
-                BoardPanel.this.width = getWidth();
-                BoardPanel.this.height = getHeight();
-            }
+    @Override
+    public void repaint ()
+    {
+        BoardPanel.this.width = getWidth();
+        BoardPanel.this.height = getHeight();
 
-            public void componentMoved (final ComponentEvent componentEvent) {}
-            public void componentShown (final ComponentEvent componentEvent) {}
-            public void componentHidden (final ComponentEvent componentEvent) {}
-        });
+        super.repaint();
     }
 
     @Override
@@ -87,8 +82,6 @@ public class BoardPanel extends JPanel
 
                 drawImageWithScaling(g, AssetManager.getInstance().getShotDrawable(), shotLocation);
             }
-
-            room.setCurrentShotCounter(1);
 
             // Draw cards when possible.
             if (room.getCardLocation() != null && room.getCard() != null) {

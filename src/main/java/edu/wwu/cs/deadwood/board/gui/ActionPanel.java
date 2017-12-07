@@ -11,14 +11,19 @@
 package edu.wwu.cs.deadwood.board.gui;
 
 
+import edu.wwu.cs.deadwood.Actionable;
 import edu.wwu.cs.deadwood.Game;
+import edu.wwu.cs.deadwood.Player;
+import edu.wwu.cs.deadwood.assets.AssetManager;
 import edu.wwu.cs.deadwood.assets.Role;
 import edu.wwu.cs.deadwood.assets.Room;
 
 import javax.swing.*;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Collection;
+import java.util.LinkedHashMap;
 
 /**
  * @author Connor Hollasch
@@ -26,14 +31,7 @@ import java.util.Collection;
  */
 public class ActionPanel extends JPanel
 {
-    private JButton bMove;
-    private JButton bTakeRole;
-    private JButton bRehearse;
-    private JButton bAct;
-    private JButton bUpgrade;
-    private JButton bEndTurn;
-    private JButton bEndDaye;
-    private JButton bEndGame;
+    private LinkedHashMap<Actionable, JButton> actionButtonMap;
 
     private Game game;
     private GUIBoard board;
@@ -43,70 +41,78 @@ public class ActionPanel extends JPanel
     private Collection<Room> adjacentRooms;
     private Collection<Role> roles;
 
-
     public ActionPanel (final Game game, final GUIBoard board)
     {
         this.game = game;
         this.board = board;
 
-        this.bMove = new JButton("Move");
-        this.bMove.addActionListener(e -> {
-            menuPopup = new JPopupMenu();
+        setPreferredSize(new Dimension(150, 0));
+        setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 
-            adjacentRooms = game.getCurrentPlayer().getPlayer().getCurrentRoom().getAdjacentRooms();
-            for (Room room: adjacentRooms) {
-                JMenuItem roomItem = new JMenuItem(room.getName());
-                roomItem.addActionListener(d -> {
-                    game.currentPlayerMove(room);
-                    System.out.println("Room clicked");
-                });
-                menuPopup.add(roomItem);
+        this.actionButtonMap = new LinkedHashMap<>();
 
+        createActionButton("Act", Actionable.ACT, actionEvent -> {});
+
+        createActionButton("End Turn", Actionable.END_TURN, actionEvent -> {});
+
+        createActionButton("Move", Actionable.MOVE, actionEvent -> {
+            final Player currentPlayer = this.game.getCurrentPlayer().getPlayer();
+            final Room currentRoom = currentPlayer.getCurrentRoom();
+            final Collection<Room> adjacentRooms = currentRoom.getAdjacentRooms();
+
+            final Room[] adjacent = adjacentRooms.toArray(new Room[0]);
+            final String[] adjacentChoices = new String[adjacent.length];
+
+            for (int i = 0; i < adjacent.length; ++i) {
+                adjacentChoices[i] = adjacent[i].getName();
             }
-            System.out.println("Move Clicked");
-            menuPopup.setVisible(true);
-        });
-        add(this.bMove);
 
-        this.bTakeRole = new JButton("Take Role");
-        this.bTakeRole.addActionListener(e -> {
+            final String choice = (String) JOptionPane.showInputDialog(
+                    null,
+                    "Pick a location to move to...",
+                    "Move",
+                    JOptionPane.QUESTION_MESSAGE,
+                    null,
+                    adjacentChoices,
+                    adjacentChoices[0]);
 
-            this.roles = game.getCurrentPlayer().getPlayer().getCurrentRoom().getCard().getRoles();
-
-            // String choice = (String)JOptionPane.showInputDialog(this, "Which role would you like to take?", "Taking a Role", JOptionPane.PLAIN_MESSAGE, null, roleOptions, roleOptions[0]);
-
-//            for (Role role: roles) {
-//                if (role.getName().equals(choice)) {
-//                    game.currentPlayerTakeRole(role);
-//                }
-//            }
-
-
-            //          menuPopup = new JPopupMenu();
-//
-//            roles = game.getCurrentPlayer().getPlayer().getCurrentRoom().getCard().getRoles();
-//            for (Role role: roles) {
-//                JMenuItem roleItem = new JMenuItem(role.getName());
-//                roleItem.addActionListener(d -> {
-//                    game.currentPlayerTakeRole(role);
-//                    System.out.println("Role clicked");
-//                });
-//                menuPopup.add(roleItem);
-//
-//            }
-//            System.out.println("Take Role Clicked");
-//            menuPopup.setVisible(true);
-        });
-        add(this.bTakeRole);
-
-        this.bRehearse = new JButton("Rehearse");
-        this.bRehearse.addActionListener(e -> {
-
+            final Room movingTo = AssetManager.getInstance().getRoomMap().get(choice.toLowerCase());
+            this.game.currentPlayerMove(movingTo);
         });
 
+        createActionButton("Rehearse", Actionable.REHEARSE, actionEvent -> {});
 
+        createActionButton("Take Role", Actionable.TAKE_ROLE, actionEvent -> {});
+
+        createActionButton("Upgrade", Actionable.UPGRADE, actionEvent -> {});
+
+        for (final JButton button : this.actionButtonMap.values()) {
+            add(button);
+        }
+
+        update();
     }
 
+    public void update ()
+    {
+        final Collection<Actionable> actions = this.game.getCurrentPlayerPossibleActions();
+        for (final Actionable action : this.actionButtonMap.keySet()) {
+            final JButton button = this.actionButtonMap.get(action);
 
+            if (actions.contains(action)) {
+                button.setEnabled(true);
+            } else {
+                button.setEnabled(false);
+            }
+        }
+    }
 
+    private void createActionButton (final String action, final Actionable actionable, final ActionListener listener)
+    {
+        final JButton button = new JButton(action);
+        button.setAlignmentX(Component.CENTER_ALIGNMENT);
+        button.addActionListener(listener);
+
+        this.actionButtonMap.put(actionable, button);
+    }
 }
