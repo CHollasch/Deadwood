@@ -77,7 +77,6 @@ public class Game
             case 7:
             case 8:
                 this.players.values().forEach(p -> p.setRank(2));
-                this.players.values().forEach(p -> p.setCreditCount(5000));
                 break;
         }
 
@@ -435,7 +434,7 @@ public class Game
     public void wrapDay (final boolean init)
     {
         // Reset states for all players and rooms to default.
-        this.players.values().forEach(p -> p.setCurrentRoom(AssetManager.getInstance().getUpgradeRoom()));
+        this.players.values().forEach(p -> p.setCurrentRoom(AssetManager.getInstance().getTrailerRoom()));
         AssetManager.getInstance().getRoomMap().values().forEach(r -> {
             r.setCurrentShotCounter(0);
             r.setCard(null);
