@@ -260,6 +260,14 @@ public class Game
         final Player player = getCurrentPlayer().getPlayer();
 
         player.setCurrentRoom(room);
+
+        if (room.getCard() != null) {
+            final Card card = room.getCard();
+            if (!card.isVisible()) {
+                card.setVisible(true);
+            }
+        }
+
         this.playerUsedMove = true;
 
         this.gameBoard.playerMoved(player, room);

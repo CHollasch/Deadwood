@@ -78,6 +78,10 @@ public class ActionPanel extends JPanel
                     adjacentChoices,
                     adjacentChoices[0]);
 
+            if (choice == null) {
+                return;
+            }
+
             final Room movingTo = AssetManager.getInstance().getRoomMap().get(choice.toLowerCase());
             this.game.currentPlayerMove(movingTo);
         });
@@ -107,6 +111,10 @@ public class ActionPanel extends JPanel
                     roleChoices,
                     roleChoices[0]);
 
+            if (choice == null) {
+                return;
+            }
+
             final Role chosenRole = roleMap.get(choice);
             this.game.currentPlayerTakeRole(chosenRole);
         });
@@ -124,6 +132,10 @@ public class ActionPanel extends JPanel
                         null,
                         new String[] {"Credits", "Dollars"},
                         "Credits");
+
+                if (choice == null) {
+                    return;
+                }
 
                 final Player player = ActionPanel.this.game.getCurrentPlayer().getPlayer();
                 final int rank = player.getRank();
@@ -143,7 +155,12 @@ public class ActionPanel extends JPanel
                                 new String[]{"Ok"},
                                 "Ok");
                     } else {
-                        final int goingTo = getUpgradingTo(rank);
+                        final Integer goingTo = getUpgradingTo(rank);
+
+                        if (goingTo == null) {
+                            return;
+                        }
+
                         ActionPanel.this.game.currentPlayerUpgrade(true, goingTo);
                     }
                 } else {
@@ -161,20 +178,25 @@ public class ActionPanel extends JPanel
                                 new String[]{"Ok"},
                                 "Ok");
                     } else {
-                        final int goingTo = getUpgradingTo(rank);
+                        final Integer goingTo = getUpgradingTo(rank);
+
+                        if (goingTo == null) {
+                            return;
+                        }
+
                         ActionPanel.this.game.currentPlayerUpgrade(false, goingTo);
                     }
                 }
             }
 
-            private int getUpgradingTo (final int currentRank)
+            private Integer getUpgradingTo (final int currentRank)
             {
                 final Integer[] options = new Integer[6 - currentRank];
                 for (int i = currentRank + 1, j = 0; i <= 6; ++i) {
                     options[j++] = i;
                 }
 
-                return options[JOptionPane.showOptionDialog(
+                final int idx = JOptionPane.showOptionDialog(
                         null,
                         "Pick a rank to upgrade to...",
                         "Rank Choice",
@@ -182,7 +204,13 @@ public class ActionPanel extends JPanel
                         JOptionPane.QUESTION_MESSAGE,
                         null,
                         options,
-                        options[0])];
+                        options[0]);
+
+                if (idx == -1) {
+                    return null;
+                }
+
+                return options[idx];
             }
         });
 
