@@ -12,9 +12,11 @@ import javax.imageio.ImageIO;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.awt.image.ColorModel;
+import java.awt.image.WritableRaster;
 import java.io.File;
 import java.io.IOException;
-import java.text.DecimalFormat;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -81,13 +83,15 @@ public class AssetManager
     private Room upgradeRoom;
 
     // Drawables
-
     private Image boardDrawable;
     private Image shotDrawable;
     private Image cardBackDrawable;
 
     private final Map<Player.Color, Image[]> playerDice;
     private final Map<Card, Image> cardImages;
+
+    private final Map<Room, Image> hoverImagesAvailable;
+    private final Map<Room, Image> hoverImagesUnavailable;
 
     //==================================================================================================================
     // Singleton constructor.
@@ -104,6 +108,9 @@ public class AssetManager
         this.cardMap = new HashMap<>();
         this.playerDice = new HashMap<>();
         this.cardImages = new HashMap<>();
+
+        this.hoverImagesAvailable = new HashMap<>();
+        this.hoverImagesUnavailable = new HashMap<>();
 
         loadAssets();
     }
@@ -172,6 +179,10 @@ public class AssetManager
                 }
             }
 
+            createHoverImages(room.room, ImageIO.read(new File(
+                    this.assetDirectory, "rooms" + File.separator + room.room.getName().toLowerCase() + ".png")
+            ));
+
             // Add to partially loaded map as we have to link adjacent room objects.
             partiallyLoadedRoomMap.put(room.room.getName(), room);
         }
@@ -208,8 +219,12 @@ public class AssetManager
 
         final Node parts = extractFirstOccurance(node, "parts");
         final Location cardLocation = getLocation(extractFirstOccurance(node, "area"));
+        final Location hoverLocation = getLocation(extractFirstOccurance(node, "hover"));
 
-        final Room room = new Room(Room.Type.STAGE, name, getElementTypeNodes(takes).size(), cardLocation);
+        final Room room = new Room(
+                Room.Type.STAGE, name, getElementTypeNodes(takes).size(), cardLocation, hoverLocation
+        );
+
         final Collection<String> neighborNames = getNeighbors(neighbors);
 
         room.getShotMarkerLocations().putAll(takeLocations);
@@ -224,7 +239,9 @@ public class AssetManager
     private PartiallyLoadedRoom loadSpecialRoom (final Node node, final Room.Type type, final String name)
     {
         // Create special room (trailer / upgrade room).
-        final Room room = new Room(type, name, 0, null);
+        final Location hoverLocation = getLocation(extractFirstOccurance(node, "hover"));
+
+        final Room room = new Room(type, name, 0, null, hoverLocation);
         final Collection<String> neighborNames = getNeighbors(extractFirstOccurance(node, "neighbors"));
 
         return new PartiallyLoadedRoom(room, neighborNames);
@@ -352,6 +369,40 @@ public class AssetManager
         return nodes;
     }
 
+    private void createHoverImages (final Room room, final Image base)
+    {
+        if (!(base instanceof BufferedImage)) {
+            return;
+        }
+
+        final BufferedImage img = (BufferedImage) base;
+
+        final BufferedImage available = colorize(img, new Color(0, 255, 0, 255));
+        final BufferedImage unavailable = colorize(img, new Color(255, 0, 0, 255));
+
+        this.hoverImagesAvailable.put(room, available);
+        this.hoverImagesUnavailable.put(room, unavailable);
+    }
+
+    private BufferedImage colorize(final BufferedImage image, final Color color)
+    {
+        final int width = image.getWidth();
+        final int height = image.getHeight();
+
+        BufferedImage dyed = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
+        Graphics2D g = dyed.createGraphics();
+
+        g.drawImage(image, 0, 0, null);
+        g.setComposite(AlphaComposite.SrcAtop);
+
+        g.setColor(color);
+        g.fillRect(0, 0, width, height);
+
+        g.dispose();
+
+        return dyed;
+    }
+
     //==================================================================================================================
     // Public API.
     //==================================================================================================================
@@ -389,6 +440,15 @@ public class AssetManager
     public Image getPlayerDice (final Player.Color color, final int rank)
     {
         return this.playerDice.get(color)[rank - 1];
+    }
+
+    public Image getHoverImage (final Room room, final boolean available)
+    {
+        if (available) {
+            return this.hoverImagesAvailable.get(room);
+        } else {
+            return this.hoverImagesUnavailable.get(room);
+        }
     }
 
     public Image getCardBackDrawable ()

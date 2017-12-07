@@ -65,7 +65,6 @@ public class Deadwood
 
     private void startCLIGame ()
     {
-
         final CommandLineBoard cliBoard = new CommandLineBoard(this.game);
         this.game.initializeGame(cliBoard, this.playerCount);
 

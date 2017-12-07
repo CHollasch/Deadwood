@@ -20,8 +20,7 @@ import edu.wwu.cs.deadwood.util.Location;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ComponentEvent;
-import java.awt.event.ComponentListener;
+import java.awt.event.*;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -40,10 +39,57 @@ public class BoardPanel extends JPanel
     private int width;
     private int height;
 
+    private Room hoveringOver;
+    private boolean isTakingMoveInput = false;
+
     public BoardPanel (final Game game)
     {
         this.game = game;
         this.setPreferredSize(new Dimension(this.width = SCALE_WIDTH, this.height = SCALE_HEIGHT));
+
+        addMouseMotionListener(new MouseMotionListener()
+        {
+            @Override
+            public void mouseDragged (final MouseEvent e)
+            {
+                moveLogic(e);
+            }
+
+            @Override
+            public void mouseMoved (final MouseEvent e)
+            {
+                moveLogic(e);
+            }
+
+            private void moveLogic (final MouseEvent e)
+            {
+                if (BoardPanel.this.isTakingMoveInput) {
+                    final Room oldRoom = BoardPanel.this.hoveringOver;
+
+                    final int x = e.getX();
+                    final int y = e.getY();
+
+                    for (final Room room : AssetManager.getInstance().getRoomMap().values()) {
+                        final Location hoverLocation = room.getHoverLocation();
+
+                        if (x >= hoverLocation.getX()
+                                && y >= hoverLocation.getY()
+                                && x <= (hoverLocation.getX() + hoverLocation.getWidth())
+                                && y <= (hoverLocation.getY() + hoverLocation.getHeight())) {
+                            BoardPanel.this.hoveringOver = room;
+                            break;
+                        }
+                    }
+
+                    if ((oldRoom == null && BoardPanel.this.hoveringOver != null)
+                        || (oldRoom != null && BoardPanel.this.hoveringOver == null)
+                        || ((oldRoom != null && BoardPanel.this.hoveringOver != null)
+                            && (!oldRoom.equals(BoardPanel.this.hoveringOver)))) {
+                        repaint();
+                    }
+                }
+            }
+        });
     }
 
     @Override
@@ -112,6 +158,31 @@ public class BoardPanel extends JPanel
         }
 
         drawPlayer(g, this.game.getCurrentPlayer().getPlayer());
+
+        if (this.isTakingMoveInput) {
+            final Room hovering = this.hoveringOver;
+
+            if (hovering != null) {
+                final Location hoverLocation = hovering.getHoverLocation();
+                final Collection<Room> adjacent = this.game.getCurrentPlayer().getPlayer().getCurrentRoom().getAdjacentRooms();
+
+                if (adjacent.contains(hovering)) {
+                    drawImageWithScaling(g, AssetManager.getInstance().getHoverImage(hovering, true), hoverLocation);
+                } else {
+                    drawImageWithScaling(g, AssetManager.getInstance().getHoverImage(hovering, false), hoverLocation);
+                }
+            }
+        }
+    }
+
+    public void setTakingMoveInput (final boolean takingMoveInput)
+    {
+        this.isTakingMoveInput = takingMoveInput;
+    }
+
+    public Room getHoveringOver ()
+    {
+        return this.hoveringOver;
     }
 
     private void drawPlayer (final Graphics g, final Player player)

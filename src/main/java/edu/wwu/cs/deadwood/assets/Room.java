@@ -29,6 +29,8 @@ public class Room
     private final Collection<Role> extraRoles;
 
     private final Location cardLocation;
+    private final Location hoverLocation;
+
     private final Map<Integer, Location> shotMarkerLocations;
     private final Map<Player.Color, Location> playerLocations;
 
@@ -39,12 +41,18 @@ public class Room
     // Constructors.
     //==================================================================================================================
 
-    public Room (final Type roomType, final String name, final int totalShotMarkers, final Location cardLocation)
+    public Room (
+            final Type roomType,
+            final String name,
+            final int totalShotMarkers,
+            final Location cardLocation,
+            final Location hoverLocation)
     {
         this.roomType = roomType;
         this.name = name;
         this.totalShotMarkers = totalShotMarkers;
         this.cardLocation = cardLocation;
+        this.hoverLocation = hoverLocation;
 
         this.currentShotCounter = 0;
         this.adjacentRooms = new HashSet<>();
@@ -111,6 +119,11 @@ public class Room
     public Location getCardLocation ()
     {
         return this.cardLocation;
+    }
+
+    public Location getHoverLocation ()
+    {
+        return this.hoverLocation;
     }
 
     public Map<Player.Color, Location> getPlayerLocations ()

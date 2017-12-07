@@ -7,6 +7,7 @@
       <neighbor name="office" />
     </neighbors>
     <area x="21" y="69" h="115" w="205" />
+    <hover x="9" y="9" w="237" h="432" />
     <players>
       <player color="b"><area x="10" y="200" h="40" w="40"/></player>
       <player color="c"><area x="10" y="220" h="40" w="40"/></player>
@@ -48,6 +49,7 @@
       <neighbor name="office" />
     </neighbors>
     <area x="27" y="732" h="115" w="205" />
+    <hover x="9" y="684" w="582" h="207" />
     <players>
       <player color="b"><area x="250" y="820" h="40" w="40"/></player>
       <player color="c"><area x="270" y="820" h="40" w="40"/></player>
@@ -89,6 +91,7 @@
       <neighbor name="Hotel" />
     </neighbors>
     <area x="623" y="734" h="115" w="205" />
+    <hover x="609" y="662" w="319" h="229" />
     <players>
       <player color="b"><area x="620" y="855" h="40" w="40"/></player>
       <player color="c"><area x="640" y="855" h="40" w="40"/></player>
@@ -121,6 +124,7 @@
       <neighbor name="Church" />
     </neighbors>
     <area x="969" y="740" h="115" w="205" />
+    <hover x="947" y="459" w="244" h="432" />
     <players>
       <player color="b"><area x="960" y="860" h="40" w="40"/></player>
       <player color="c"><area x="980" y="860" h="40" w="40"/></player>
@@ -162,6 +166,7 @@
       <neighbor name="Saloon" />
     </neighbors>
     <area x="969" y="28" h="115" w="205" />
+    <hover x="609" y="9" w="582" h="222" />
     <players>
       <player color="b"><area x="780" y="85" h="40" w="40"/></player>
       <player color="c"><area x="800" y="85" h="40" w="40"/></player>
@@ -203,6 +208,7 @@
       <neighbor name="Train Station" />
     </neighbors>
     <area x="281" y="27" h="115" w="205" />
+    <hover x="264" y="9" w="327" h="229" />
     <players>
       <player color="b"><area x="280" y="150" h="40" w="40"/></player>
       <player color="c"><area x="300" y="150" h="40" w="40"/></player>
@@ -235,6 +241,7 @@
       <neighbor name="Saloon" />
     </neighbors>
     <area x="370" y="282" h="115" w="205" />
+    <hover x="204" y="257" w="387" h="184" />
     <players>
       <player color="b"><area x="365" y="400" h="40" w="40"/></player>
       <player color="c"><area x="385" y="400" h="40" w="40"/></player>
@@ -268,6 +275,7 @@
       <neighbor name="Bank" />
     </neighbors>
     <area x="252" y="478" h="115" w="205" />
+    <hover x="234" y="459" w="357" h="237" />
     <players>
       <player color="b"><area x="270" y="600" h="40" w="40"/></player>
       <player color="c"><area x="290" y="600" h="40" w="40"/></player>
@@ -305,6 +313,7 @@
       <neighbor name="Hotel" />
     </neighbors>
     <area x="623" y="475" h="115" w="205" />
+    <hover x="609" y="459" w="379" h="184" />
     <players>
       <player color="b"><area x="620" y="600" h="40" w="40"/></player>
       <player color="c"><area x="640" y="600" h="40" w="40"/></player>
@@ -337,6 +346,7 @@
       <neighbor name="trailer" />
     </neighbors>
     <area x="632" y="280" h="115" w="205" />
+    <hover x="609" y="204" w="364" h="237" />
     <players>
       <player color="b"><area x="630" y="400" h="40" w="40"/></player>
       <player color="c"><area x="650" y="400" h="40" w="40"/></player>
@@ -369,6 +379,7 @@
       <neighbor name="Hotel" />
     </neighbors>
     <area x="991" y="248" h="194" w="201" />
+    <hover x="992" y="249" w="199" h="192" />
     <players>
       <player color="b"><area x="1000" y="290" h="40" w="40"/></player>
       <player color="c"><area x="1010" y="290" h="40" w="40"/></player>
@@ -387,6 +398,7 @@
       <neighbor name="Secret Hideout" />
     </neighbors>
     <area x="9" y="459" h="208" w="209" />
+    <hover x="9" y="459" w="207" h="207" />
     <players>
       <player color="b"><area x="20" y="465" h="40" w="40"/></player>
       <player color="c"><area x="30" y="465" h="40" w="40"/></player>

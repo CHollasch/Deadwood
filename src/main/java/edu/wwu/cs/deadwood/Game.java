@@ -442,7 +442,7 @@ public class Game
         this.gameBoard.sceneWrapped(room, playerPayouts, offCardPayouts);
 
         // Check to see if we need to end the day now that the last scene has been wrapped up.
-        if (wrappedRooms + 1 >= 0) {
+        if (wrappedRooms + 1 >= totalRooms) {
             wrapDay(false);
         }
     }
@@ -451,6 +451,13 @@ public class Game
     {
         // Reset states for all players and rooms to default.
         this.players.values().forEach(p -> p.setCurrentRoom(AssetManager.getInstance().getTrailerRoom()));
+        this.players.values().forEach(p -> p.setActiveRole(null));
+
+        this.currentPlayer = this.currentPlayer.getNext();
+
+        this.playerUsedMove = false;
+        this.playerUsedTurn = false;
+
         AssetManager.getInstance().getRoomMap().values().forEach(r -> {
             r.setCurrentShotCounter(0);
             r.setCard(null);

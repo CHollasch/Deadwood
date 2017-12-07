@@ -22,6 +22,8 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
@@ -64,36 +66,32 @@ public class ActionPanel extends JPanel
         createActionButton("End Turn", Actionable.END_TURN, actionEvent -> this.game.currentPlayerEndTurn());
 
         createActionButton("Move", Actionable.MOVE, actionEvent -> {
-            final Player currentPlayer = this.game.getCurrentPlayer().getPlayer();
-            final Room currentRoom = currentPlayer.getCurrentRoom();
-            final Collection<Room> adjacentRooms = currentRoom.getAdjacentRooms();
+            // Let the board panel know we're performing a move event.
+            ActionPanel.this.board.getBoardPanel().setTakingMoveInput(true);
 
-            final Room[] adjacent = adjacentRooms.toArray(new Room[0]);
-            final String[] adjacentChoices = new String[adjacent.length];
+            final MouseListener mouseListener = new MouseListener()
+            {
+                @Override
+                public void mouseClicked (MouseEvent e)
+                {
+                    final Room hoveringOver = ActionPanel.this.board.getBoardPanel().getHoveringOver();
+                    final Collection<Room> adjacent = ActionPanel.this.game.getCurrentPlayer().getPlayer()
+                            .getCurrentRoom().getAdjacentRooms();
 
-            for (int i = 0; i < adjacent.length; ++i) {
-                adjacentChoices[i] = adjacent[i].getName();
-            }
-
-            try {
-                final String choice = (String) JOptionPane.showInputDialog(
-                        ActionPanel.this.board.getBoardPanel(),
-                        "Pick a location to move to...",
-                        "Move",
-                        JOptionPane.QUESTION_MESSAGE,
-                        null,
-                        adjacentChoices,
-                        adjacentChoices[0]);
-
-                if (choice == null) {
-                    return;
+                    if (hoveringOver != null && adjacent.contains(hoveringOver)) {
+                        ActionPanel.this.game.currentPlayerMove(hoveringOver);
+                        ActionPanel.this.board.getBoardPanel().removeMouseListener(this);
+                        clearChoiceState();
+                    }
                 }
 
-                final Room movingTo = AssetManager.getInstance().getRoomMap().get(choice.toLowerCase());
-                this.game.currentPlayerMove(movingTo);
-            } catch (IllegalComponentStateException e) {
-                // Ignore.
-            }
+                public void mousePressed (MouseEvent e) {}
+                public void mouseReleased (MouseEvent e) {}
+                public void mouseEntered (MouseEvent e) {}
+                public void mouseExited (MouseEvent e) {}
+            };
+
+            ActionPanel.this.board.getBoardPanel().addMouseListener(mouseListener);
         });
 
         createActionButton("Rehearse", Actionable.REHEARSE, actionEvent -> this.game.currentPlayerRehearse());
@@ -178,7 +176,7 @@ public class ActionPanel extends JPanel
                         ActionPanel.this.game.currentPlayerUpgrade(true, goingTo);
                     }
                 } else {
-                    final int dollars = player.getCreditCount();
+                    final int dollars = player.getDollarCount();
                     final int dollarsNeeded = AssetManager.getDollarUpgradeCost(player.getRank() + 1);
 
                     if (dollarsNeeded > dollars) {
@@ -242,6 +240,11 @@ public class ActionPanel extends JPanel
         add(this.statsPanel);
 
         update();
+    }
+
+    private void clearChoiceState ()
+    {
+        this.board.getBoardPanel().setTakingMoveInput(false);
     }
 
     public void update ()
@@ -319,7 +322,11 @@ public class ActionPanel extends JPanel
     {
         final JButton button = new JButton(action);
         button.setAlignmentX(Component.CENTER_ALIGNMENT);
-        button.addActionListener(listener);
+
+        button.addActionListener(e -> {
+            clearChoiceState();
+            listener.actionPerformed(e);
+        });
 
         this.actionButtonMap.put(actionable, button);
     }
