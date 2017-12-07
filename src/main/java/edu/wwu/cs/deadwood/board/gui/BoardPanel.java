@@ -90,6 +90,8 @@ public class BoardPanel extends JPanel
 
                 if (card.isVisible() && !room.isSceneFinished()) {
                     drawImageWithScaling(g, AssetManager.getInstance().getCardImage(card), cardLocation);
+                } else if (!card.isVisible() && !room.isSceneFinished()) {
+                    drawImageWithScaling(g, AssetManager.getInstance().getCardBackDrawable(), cardLocation);
                 }
             }
         }

@@ -31,12 +31,17 @@ public class Deadwood
                     null,
                     "Pick a number of players",
                     "Welcome to Deadwood",
-                    JOptionPane.PLAIN_MESSAGE,
+                    JOptionPane.DEFAULT_OPTION,
                     JOptionPane.QUESTION_MESSAGE,
                     null,
                     new Integer[] {2, 3, 4, 5, 6, 7, 8},
-                    2) + 2;
+                    2);
 
+            if (this.playerCount == -1) {
+                System.exit(0);
+            }
+
+            this.playerCount += 2;
         } catch (final Exception e) {
             System.out.println("First argument must be the player count integer!");
             System.exit(-1);

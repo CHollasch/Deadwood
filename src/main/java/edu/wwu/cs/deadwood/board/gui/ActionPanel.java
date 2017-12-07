@@ -75,21 +75,25 @@ public class ActionPanel extends JPanel
                 adjacentChoices[i] = adjacent[i].getName();
             }
 
-            final String choice = (String) JOptionPane.showInputDialog(
-                    ActionPanel.this.board.getBoardPanel(),
-                    "Pick a location to move to...",
-                    "Move",
-                    JOptionPane.QUESTION_MESSAGE,
-                    null,
-                    adjacentChoices,
-                    adjacentChoices[0]);
+            try {
+                final String choice = (String) JOptionPane.showInputDialog(
+                        ActionPanel.this.board.getBoardPanel(),
+                        "Pick a location to move to...",
+                        "Move",
+                        JOptionPane.QUESTION_MESSAGE,
+                        null,
+                        adjacentChoices,
+                        adjacentChoices[0]);
 
-            if (choice == null) {
-                return;
+                if (choice == null) {
+                    return;
+                }
+
+                final Room movingTo = AssetManager.getInstance().getRoomMap().get(choice.toLowerCase());
+                this.game.currentPlayerMove(movingTo);
+            } catch (IllegalComponentStateException e) {
+                // Ignore.
             }
-
-            final Room movingTo = AssetManager.getInstance().getRoomMap().get(choice.toLowerCase());
-            this.game.currentPlayerMove(movingTo);
         });
 
         createActionButton("Rehearse", Actionable.REHEARSE, actionEvent -> this.game.currentPlayerRehearse());
@@ -108,21 +112,25 @@ public class ActionPanel extends JPanel
                 roleMap.put(roles[i].getName(), roles[i]);
             }
 
-            final String choice = (String) JOptionPane.showInputDialog(
-                    ActionPanel.this.board.getBoardPanel(),
-                    "Pick a role to take ...",
-                    "Roles",
-                    JOptionPane.QUESTION_MESSAGE,
-                    null,
-                    roleChoices,
-                    roleChoices[0]);
+            try {
+                final String choice = (String) JOptionPane.showInputDialog(
+                        ActionPanel.this.board.getBoardPanel(),
+                        "Pick a role to take ...",
+                        "Roles",
+                        JOptionPane.QUESTION_MESSAGE,
+                        null,
+                        roleChoices,
+                        roleChoices[0]);
 
-            if (choice == null) {
-                return;
+                if (choice == null) {
+                    return;
+                }
+
+                final Role chosenRole = roleMap.get(choice);
+                this.game.currentPlayerTakeRole(chosenRole);
+            } catch (final IllegalComponentStateException e) {
+                // Ignore.
             }
-
-            final Role chosenRole = roleMap.get(choice);
-            this.game.currentPlayerTakeRole(chosenRole);
         });
 
         createActionButton("Upgrade", Actionable.UPGRADE, new ActionListener()
@@ -256,10 +264,11 @@ public class ActionPanel extends JPanel
     {
         createStat("day", "Current Day", "1");
         createStat("player", "Current Player", "...");
-        createStat("rank", "Players Rank", "...");
-        createStat("money", "Players Money", "...");
-        createStat("credits", "Players Credits", "...");
+        createStat("rank", "Rank", "...");
+        createStat("money", "Money", "...");
+        createStat("credits", "Credits", "...");
         createStat("rehearsalPoints", "Rehearsal Points", "...");
+        createStat("score", "Players Score", "...");
     }
 
     private void createStat (final String stat, final String header, final String value)
@@ -303,6 +312,7 @@ public class ActionPanel extends JPanel
         this.statsMap.get("money").setText(String.valueOf(money));
         this.statsMap.get("credits").setText(String.valueOf(credits));
         this.statsMap.get("rehearsalPoints").setText(String.valueOf(rehearsalPoinst));
+        this.statsMap.get("score").setText(String.valueOf(current.getScore()));
     }
 
     private void createActionButton (final String action, final Actionable actionable, final ActionListener listener)

@@ -84,6 +84,7 @@ public class AssetManager
 
     private Image boardDrawable;
     private Image shotDrawable;
+    private Image cardBackDrawable;
 
     private final Map<Player.Color, Image[]> playerDice;
     private final Map<Card, Image> cardImages;
@@ -118,6 +119,7 @@ public class AssetManager
 
         this.boardDrawable = ImageIO.read(new File(assetDirectory, "board.jpg"));
         this.shotDrawable = ImageIO.read(new File(assetDirectory, "shot.png"));
+        this.cardBackDrawable = ImageIO.read(new File(assetDirectory, "cards" + File.separator + "back.png"));
 
         for (final Player.Color color : Player.Color.values()) {
             final Image[] diceImages = new Image[6];
@@ -387,6 +389,11 @@ public class AssetManager
     public Image getPlayerDice (final Player.Color color, final int rank)
     {
         return this.playerDice.get(color)[rank - 1];
+    }
+
+    public Image getCardBackDrawable ()
+    {
+        return this.cardBackDrawable;
     }
 
     public Image getCardImage (final Card card)
