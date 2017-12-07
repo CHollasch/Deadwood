@@ -51,9 +51,11 @@ public class ActionPanel extends JPanel
 
         this.actionButtonMap = new LinkedHashMap<>();
 
-        createActionButton("Act", Actionable.ACT, actionEvent -> {});
+        createActionButton("Act", Actionable.ACT, actionEvent -> {
+            this.game.currentPlayerAct();
+        });
 
-        createActionButton("End Turn", Actionable.END_TURN, actionEvent -> {});
+        createActionButton("End Turn", Actionable.END_TURN, actionEvent -> this.game.currentPlayerEndTurn());
 
         createActionButton("Move", Actionable.MOVE, actionEvent -> {
             final Player currentPlayer = this.game.getCurrentPlayer().getPlayer();
@@ -80,11 +82,17 @@ public class ActionPanel extends JPanel
             this.game.currentPlayerMove(movingTo);
         });
 
-        createActionButton("Rehearse", Actionable.REHEARSE, actionEvent -> {});
+        createActionButton("Rehearse", Actionable.REHEARSE, actionEvent -> {
+            this.game.currentPlayerRehearse();
+        });
 
-        createActionButton("Take Role", Actionable.TAKE_ROLE, actionEvent -> {});
+        createActionButton("Take Role", Actionable.TAKE_ROLE, actionEvent -> {
 
-        createActionButton("Upgrade", Actionable.UPGRADE, actionEvent -> {});
+        });
+
+        createActionButton("Upgrade", Actionable.UPGRADE, actionEvent -> {
+
+        });
 
         for (final JButton button : this.actionButtonMap.values()) {
             add(button);
