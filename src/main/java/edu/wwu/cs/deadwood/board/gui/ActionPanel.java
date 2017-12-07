@@ -12,6 +12,7 @@ package edu.wwu.cs.deadwood.board.gui;
 
 
 import edu.wwu.cs.deadwood.Game;
+import edu.wwu.cs.deadwood.assets.Role;
 import edu.wwu.cs.deadwood.assets.Room;
 
 import javax.swing.*;
@@ -40,6 +41,7 @@ public class ActionPanel extends JPanel
     private JPopupMenu menuPopup;
 
     private Collection<Room> adjacentRooms;
+    private Collection<Role> roles;
 
 
     public ActionPanel (final Game game, final GUIBoard board)
@@ -53,22 +55,54 @@ public class ActionPanel extends JPanel
 
             adjacentRooms = game.getCurrentPlayer().getPlayer().getCurrentRoom().getAdjacentRooms();
             for (Room room: adjacentRooms) {
-                menuPopup.add(new JMenuItem(room.getName()));
-                //menuPopup.addPopupMenuListener();
+                JMenuItem roomItem = new JMenuItem(room.getName());
+                roomItem.addActionListener(d -> {
+                    game.currentPlayerMove(room);
+                    System.out.println("Room clicked");
+                });
+                menuPopup.add(roomItem);
+
             }
-
-            menuPopup.setVisible(true);
-
-
-
-
             System.out.println("Move Clicked");
-
+            menuPopup.setVisible(true);
         });
-
-
         add(this.bMove);
 
+        this.bTakeRole = new JButton("Take Role");
+        this.bTakeRole.addActionListener(e -> {
+
+            this.roles = game.getCurrentPlayer().getPlayer().getCurrentRoom().getCard().getRoles();
+
+            // String choice = (String)JOptionPane.showInputDialog(this, "Which role would you like to take?", "Taking a Role", JOptionPane.PLAIN_MESSAGE, null, roleOptions, roleOptions[0]);
+
+//            for (Role role: roles) {
+//                if (role.getName().equals(choice)) {
+//                    game.currentPlayerTakeRole(role);
+//                }
+//            }
+
+
+            //          menuPopup = new JPopupMenu();
+//
+//            roles = game.getCurrentPlayer().getPlayer().getCurrentRoom().getCard().getRoles();
+//            for (Role role: roles) {
+//                JMenuItem roleItem = new JMenuItem(role.getName());
+//                roleItem.addActionListener(d -> {
+//                    game.currentPlayerTakeRole(role);
+//                    System.out.println("Role clicked");
+//                });
+//                menuPopup.add(roleItem);
+//
+//            }
+//            System.out.println("Take Role Clicked");
+//            menuPopup.setVisible(true);
+        });
+        add(this.bTakeRole);
+
+        this.bRehearse = new JButton("Rehearse");
+        this.bRehearse.addActionListener(e -> {
+
+        });
 
 
     }

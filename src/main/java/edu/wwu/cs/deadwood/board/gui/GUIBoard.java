@@ -32,7 +32,7 @@ public class GUIBoard implements Board
         this.frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 
         this.frame.add(new ActionPanel(game, this));
-        this.frame.add(this.boardPanel = new BoardPanel(this.game));
+        // this.frame.add(this.boardPanel = new BoardPanel(this.game));
 
         this.frame.pack();
 
