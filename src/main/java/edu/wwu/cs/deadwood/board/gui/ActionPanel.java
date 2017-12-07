@@ -23,7 +23,9 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.Map;
 
 /**
  * @author Connor Hollasch
@@ -87,7 +89,30 @@ public class ActionPanel extends JPanel
         });
 
         createActionButton("Take Role", Actionable.TAKE_ROLE, actionEvent -> {
+            final Player currentPlayer = this.game.getCurrentPlayer().getPlayer();
 
+            final Map<String, Role> roleMap = new HashMap<>();
+            final Collection<Role> availableRoles = game.getActableRolesByPlayer(currentPlayer);
+
+            final Role[] roles = availableRoles.toArray(new Role[0]);
+            final String[] roleChoices = new String[roles.length];
+
+            for (int i = 0; i < roles.length; ++i) {
+                roleChoices[i] = roles[i].getName();
+                roleMap.put(roles[i].getName(), roles[i]);
+            }
+
+            final String choice = (String) JOptionPane.showInputDialog(
+                    null,
+                    "Pick a role to take ...",
+                    "Roles",
+                    JOptionPane.QUESTION_MESSAGE,
+                    null,
+                    roleChoices,
+                    roleChoices[0]);
+
+            final Role chosenRole = roleMap.get(choice);
+            this.game.currentPlayerTakeRole(chosenRole);
         });
 
         createActionButton("Upgrade", Actionable.UPGRADE, actionEvent -> {
