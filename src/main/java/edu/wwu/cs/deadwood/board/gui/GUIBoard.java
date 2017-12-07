@@ -10,6 +10,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
+import java.awt.event.WindowEvent;
 import java.util.Collection;
 import java.util.Map;
 
@@ -73,7 +74,7 @@ public class GUIBoard implements Board
 
     public void destroyWindow ()
     {
-        // Destroy the frame.
+        this.frame.dispatchEvent(new WindowEvent(frame, WindowEvent.WINDOW_CLOSING));
     }
 
     public ActionPanel getActionPanel ()
@@ -110,8 +111,18 @@ public class GUIBoard implements Board
     @Override
     public void endGame ()
     {
-        this.actionPanel.update();
-        this.boardPanel.repaint();
+        JOptionPane.showOptionDialog(
+                null,
+                "That's the game! The winner is " + this.game.getWinner().getColor().name(),
+                "Game Over",
+                JOptionPane.PLAIN_MESSAGE,
+                JOptionPane.INFORMATION_MESSAGE,
+                null,
+                new String[] {"Ok"},
+                "Ok");
+
+        destroyWindow();
+        System.exit(0);
     }
 
     @Override

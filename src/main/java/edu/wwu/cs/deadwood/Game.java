@@ -350,6 +350,7 @@ public class Game
 
             // Mark the player as having no role as the scene is wrapped.
             player.setActiveRole(null);
+            player.setPracticeChips(0);
 
             if (roomCard.getRoles().contains(role)) {
                 playersOnCardRoles.put(player, role);
@@ -441,7 +442,7 @@ public class Game
         this.gameBoard.sceneWrapped(room, playerPayouts, offCardPayouts);
 
         // Check to see if we need to end the day now that the last scene has been wrapped up.
-        if (wrappedRooms + 1 >= totalRooms) {
+        if (wrappedRooms + 1 >= 0) {
             wrapDay(false);
         }
     }
@@ -469,9 +470,10 @@ public class Game
         }
 
         if (!init) {
+            --this.daysLeft;
             this.gameBoard.dayWrapped();
 
-            if (--this.daysLeft <= 0) {
+            if (this.daysLeft <= 0) {
                 this.gameBoard.endGame();
             }
         }
@@ -514,6 +516,23 @@ public class Game
     public int getMaxDays ()
     {
         return this.maxDays;
+    }
+
+    public Player getWinner ()
+    {
+        Player winner = null;
+        for (final Player player : getPlayers()) {
+            if (winner == null) {
+                winner = player;
+                continue;
+            }
+
+            if (winner.getScore() < player.getScore()) {
+                winner = player;
+            }
+        }
+
+        return winner;
     }
 
     //==================================================================================================================
