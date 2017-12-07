@@ -102,21 +102,33 @@ public class BoardPanel extends JPanel
                 continue;
             }
 
-            final Room currentRoom = player.getCurrentRoom();
-            final Image playerImage = AssetManager.getInstance().getPlayerDice(color, player.getRank());
+            if (this.game.getCurrentPlayer().getPlayer().equals(player)) {
+                continue;
+            }
 
-            if (player.getActiveRole() != null) {
-                final Role role = player.getActiveRole();
-                if (role.isExtraRole()) {
-                    drawImageWithScaling(g, playerImage, role.getLocation());
-                } else {
-                    drawForRoleOnCard(g, playerImage, currentRoom.getCardLocation(), role);
-                }
+            drawPlayer(g, player);
+        }
+
+        drawPlayer(g, this.game.getCurrentPlayer().getPlayer());
+    }
+
+    private void drawPlayer (final Graphics g, final Player player)
+    {
+        final Player.Color color = player.getColor();
+        final Room currentRoom = player.getCurrentRoom();
+        final Image playerImage = AssetManager.getInstance().getPlayerDice(color, player.getRank());
+
+        if (player.getActiveRole() != null) {
+            final Role role = player.getActiveRole();
+            if (role.isExtraRole()) {
+                drawImageWithScaling(g, playerImage, role.getLocation());
             } else {
-                if (currentRoom.getPlayerLocations().containsKey(color)) {
-                    final Location drawTo = currentRoom.getPlayerLocations().get(color);
-                    drawImageWithScaling(g, playerImage, drawTo);
-                }
+                drawForRoleOnCard(g, playerImage, currentRoom.getCardLocation(), role);
+            }
+        } else {
+            if (currentRoom.getPlayerLocations().containsKey(color)) {
+                final Location drawTo = currentRoom.getPlayerLocations().get(color);
+                drawImageWithScaling(g, playerImage, drawTo);
             }
         }
     }

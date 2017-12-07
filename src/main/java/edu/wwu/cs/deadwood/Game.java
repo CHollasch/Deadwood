@@ -246,10 +246,13 @@ public class Game
 
     public void currentPlayerEndTurn ()
     {
+        final Player old = this.currentPlayer.getPlayer();
         this.currentPlayer = this.currentPlayer.getNext();
 
         this.playerUsedMove = false;
         this.playerUsedTurn = false;
+
+        this.gameBoard.playerEndedTurn(old, this.currentPlayer.getPlayer());
     }
 
     public void currentPlayerMove (final Room room)
