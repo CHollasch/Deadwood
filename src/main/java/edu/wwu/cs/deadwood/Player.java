@@ -139,5 +139,16 @@ public class Player
         {
             return this.prefix;
         }
+
+        public static Color getByPrefix (final String prefix)
+        {
+            for (final Color color : values()) {
+                if (color.getPrefix().equals(prefix)) {
+                    return color;
+                }
+            }
+
+            return null;
+        }
     }
 }

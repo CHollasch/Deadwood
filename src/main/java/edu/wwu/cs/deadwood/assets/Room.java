@@ -1,5 +1,6 @@
 package edu.wwu.cs.deadwood.assets;
 
+import edu.wwu.cs.deadwood.Player;
 import edu.wwu.cs.deadwood.util.Location;
 
 import java.util.Collection;
@@ -29,6 +30,7 @@ public class Room
 
     private final Location cardLocation;
     private final Map<Integer, Location> shotMarkerLocations;
+    private final Map<Player.Color, Location> playerLocations;
 
     private Card card;
     private boolean sceneFinished;
@@ -48,6 +50,7 @@ public class Room
         this.adjacentRooms = new HashSet<>();
         this.extraRoles = new HashSet<>();
         this.shotMarkerLocations = new HashMap<>();
+        this.playerLocations = new HashMap<>();
         this.card = null;
         this.sceneFinished = false;
     }
@@ -108,6 +111,11 @@ public class Room
     public Location getCardLocation ()
     {
         return this.cardLocation;
+    }
+
+    public Map<Player.Color, Location> getPlayerLocations ()
+    {
+        return this.playerLocations;
     }
 
     public Card getCard ()

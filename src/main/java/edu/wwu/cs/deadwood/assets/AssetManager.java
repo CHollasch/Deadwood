@@ -158,6 +158,18 @@ public class AssetManager
                 this.upgradeRoom = room.room;
             }
 
+            final Node playerLocations = extractFirstOccurance(node, "players");
+            if (playerLocations != null) {
+                for (final Node playerLocation : getElementTypeNodes(playerLocations)) {
+                    final Player.Color color = Player.Color.getByPrefix(
+                            playerLocation.getAttributes().getNamedItem("color").getNodeValue()
+                    );
+
+                    final Location location = getLocation(extractFirstOccurance(playerLocation, "area"));
+                    room.room.getPlayerLocations().put(color, location);
+                }
+            }
+
             // Add to partially loaded map as we have to link adjacent room objects.
             partiallyLoadedRoomMap.put(room.room.getName(), room);
         }
