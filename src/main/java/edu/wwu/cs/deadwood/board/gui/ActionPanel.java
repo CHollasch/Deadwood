@@ -10,7 +10,14 @@
 
 package edu.wwu.cs.deadwood.board.gui;
 
+
+import edu.wwu.cs.deadwood.Game;
+import edu.wwu.cs.deadwood.assets.Room;
+
 import javax.swing.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.Collection;
 
 /**
  * @author Connor Hollasch
@@ -18,8 +25,54 @@ import javax.swing.*;
  */
 public class ActionPanel extends JPanel
 {
-    public ActionPanel ()
+    private JButton bMove;
+    private JButton bTakeRole;
+    private JButton bRehearse;
+    private JButton bAct;
+    private JButton bUpgrade;
+    private JButton bEndTurn;
+    private JButton bEndDaye;
+    private JButton bEndGame;
+
+    private Game game;
+    private GUIBoard board;
+
+    private JPopupMenu menuPopup;
+
+    private Collection<Room> adjacentRooms;
+
+
+    public ActionPanel (final Game game, final GUIBoard board)
     {
-        add(new JButton("Test"));
+        this.game = game;
+        this.board = board;
+
+        this.bMove = new JButton("Move");
+        this.bMove.addActionListener(e -> {
+            menuPopup = new JPopupMenu();
+
+            adjacentRooms = game.getCurrentPlayer().getPlayer().getCurrentRoom().getAdjacentRooms();
+            for (Room room: adjacentRooms) {
+                menuPopup.add(new JMenuItem(room.getName()));
+                //menuPopup.addPopupMenuListener();
+            }
+
+            menuPopup.setVisible(true);
+
+
+
+
+            System.out.println("Move Clicked");
+
+        });
+
+
+        add(this.bMove);
+
+
+
     }
+
+
+
 }
