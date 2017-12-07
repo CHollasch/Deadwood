@@ -22,6 +22,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.LinkedHashMap;
 
@@ -51,10 +52,7 @@ public class ActionPanel extends JPanel
 
         this.actionButtonMap = new LinkedHashMap<>();
 
-        createActionButton("Act", Actionable.ACT, actionEvent -> {
-            this.game.currentPlayerAct();
-        });
-
+        createActionButton("Act", Actionable.ACT, actionEvent -> this.game.currentPlayerAct());
         createActionButton("End Turn", Actionable.END_TURN, actionEvent -> this.game.currentPlayerEndTurn());
 
         createActionButton("Move", Actionable.MOVE, actionEvent -> {
@@ -82,16 +80,85 @@ public class ActionPanel extends JPanel
             this.game.currentPlayerMove(movingTo);
         });
 
-        createActionButton("Rehearse", Actionable.REHEARSE, actionEvent -> {
-            this.game.currentPlayerRehearse();
-        });
+        createActionButton("Rehearse", Actionable.REHEARSE, actionEvent -> this.game.currentPlayerRehearse());
 
         createActionButton("Take Role", Actionable.TAKE_ROLE, actionEvent -> {
 
         });
 
-        createActionButton("Upgrade", Actionable.UPGRADE, actionEvent -> {
+        createActionButton("Upgrade", Actionable.UPGRADE, new ActionListener()
+        {
+            @Override
+            public void actionPerformed (ActionEvent actionEvent)
+            {
+                final String choice = (String) JOptionPane.showInputDialog(
+                        null,
+                        "Pick a method of payment for upgrading...",
+                        "Upgrade",
+                        JOptionPane.QUESTION_MESSAGE,
+                        null,
+                        new String[] {"Credits", "Dollars"},
+                        "Credits");
 
+                final Player player = ActionPanel.this.game.getCurrentPlayer().getPlayer();
+                final int rank = player.getRank();
+
+                if (choice.equals("Credits")) {
+                    final int credits = player.getCreditCount();
+                    final int creditsNeeded = AssetManager.getCreditUpgradeCost(player.getRank() + 1);
+
+                    if (creditsNeeded > credits) {
+                        JOptionPane.showOptionDialog(
+                                null,
+                                "You cannot afford to upgrade to any rank with credits!",
+                                "Error",
+                                JOptionPane.PLAIN_MESSAGE,
+                                JOptionPane.ERROR_MESSAGE,
+                                null,
+                                new String[]{"Ok"},
+                                "Ok");
+                    } else {
+                        final int goingTo = getUpgradingTo(rank);
+                        ActionPanel.this.game.currentPlayerUpgrade(true, goingTo);
+                    }
+                } else {
+                    final int dollars = player.getCreditCount();
+                    final int dollarsNeeded = AssetManager.getDollarUpgradeCost(player.getRank() + 1);
+
+                    if (dollarsNeeded > dollars) {
+                        JOptionPane.showOptionDialog(
+                                null,
+                                "You cannot afford to upgrade to any rank with dollars!",
+                                "Error",
+                                JOptionPane.PLAIN_MESSAGE,
+                                JOptionPane.ERROR_MESSAGE,
+                                null,
+                                new String[]{"Ok"},
+                                "Ok");
+                    } else {
+                        final int goingTo = getUpgradingTo(rank);
+                        ActionPanel.this.game.currentPlayerUpgrade(false, goingTo);
+                    }
+                }
+            }
+
+            private int getUpgradingTo (final int currentRank)
+            {
+                final Integer[] options = new Integer[6 - currentRank];
+                for (int i = currentRank + 1, j = 0; i <= 6; ++i) {
+                    options[j++] = i;
+                }
+
+                return options[JOptionPane.showOptionDialog(
+                        null,
+                        "Pick a rank to upgrade to...",
+                        "Rank Choice",
+                        JOptionPane.PLAIN_MESSAGE,
+                        JOptionPane.QUESTION_MESSAGE,
+                        null,
+                        options,
+                        options[0])];
+            }
         });
 
         for (final JButton button : this.actionButtonMap.values()) {
