@@ -72,10 +72,18 @@ public class BoardPanel extends JPanel
                     for (final Room room : AssetManager.getInstance().getRoomMap().values()) {
                         final Location hoverLocation = room.getHoverLocation();
 
-                        if (x >= hoverLocation.getX()
-                                && y >= hoverLocation.getY()
-                                && x <= (hoverLocation.getX() + hoverLocation.getWidth())
-                                && y <= (hoverLocation.getY() + hoverLocation.getHeight())) {
+                        final double xScale = (double) BoardPanel.this.width / SCALE_WIDTH;
+                        final double yScale = (double) BoardPanel.this.height / SCALE_HEIGHT;
+
+                        final int newX = (int) (hoverLocation.getX() * xScale);
+                        final int newY = (int) (hoverLocation.getY() * yScale);
+                        final int newWidth = (int) (hoverLocation.getWidth() * xScale);
+                        final int newHeight = (int) (hoverLocation.getHeight() * yScale);
+
+                        if (x >= newX
+                                && y >= newY
+                                && x <= (newX + newWidth)
+                                && y <= (newY + newHeight)) {
                             BoardPanel.this.hoveringOver = room;
                             break;
                         }
