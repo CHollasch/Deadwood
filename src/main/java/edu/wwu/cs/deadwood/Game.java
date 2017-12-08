@@ -36,7 +36,7 @@ public class Game
     // Constructors.
     //==================================================================================================================
 
-    public Game (final Deadwood deadwood)
+    Game (final Deadwood deadwood)
     {
         this.deadwood = deadwood;
 
@@ -52,7 +52,7 @@ public class Game
     // Game setup and accessor logic.
     //==================================================================================================================
 
-    public void initializeGame (final Board gameBoard, final int playerCount)
+    void initializeGame (final Board gameBoard, final int playerCount)
     {
         this.gameBoard = gameBoard;
         this.daysLeft = 1;
@@ -321,7 +321,7 @@ public class Game
     // Scene and day wrapping.
     //==================================================================================================================
 
-    public void wrapScene (final Room room)
+    private void wrapScene (final Room room)
     {
         final Card roomCard = room.getCard();
 
@@ -447,7 +447,7 @@ public class Game
         }
     }
 
-    public void wrapDay (final boolean init)
+    private void wrapDay (final boolean init)
     {
         // Reset states for all players and rooms to default.
         this.players.values().forEach(p -> p.setCurrentRoom(AssetManager.getInstance().getTrailerRoom()));
@@ -510,7 +510,7 @@ public class Game
         return this.currentPlayer;
     }
 
-    public void setCurrentPlayer (final PlayerTurn currentPlayer)
+    private void setCurrentPlayer (final PlayerTurn currentPlayer)
     {
         this.currentPlayer = currentPlayer;
     }
@@ -560,7 +560,7 @@ public class Game
         private final Player    player;
         private PlayerTurn      next;
 
-        public PlayerTurn (final Player player)
+        PlayerTurn (final Player player)
         {
             this.player = player;
         }
@@ -570,12 +570,12 @@ public class Game
             return this.player;
         }
 
-        public PlayerTurn getNext ()
+        PlayerTurn getNext ()
         {
             return this.next;
         }
 
-        public void setNext (final PlayerTurn next)
+        void setNext (final PlayerTurn next)
         {
             this.next = next;
         }

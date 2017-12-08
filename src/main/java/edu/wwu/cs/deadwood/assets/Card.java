@@ -25,7 +25,7 @@ public class Card
     // Constructors.
     //==================================================================================================================
 
-    public Card (
+    Card (
             final String name,
             final String description,
             final int sceneNumber,
@@ -51,6 +51,7 @@ public class Card
         return this.name;
     }
 
+    @SuppressWarnings("unused")
     public String getDescription ()
     {
         return this.description;

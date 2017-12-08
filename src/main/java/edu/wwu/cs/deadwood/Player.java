@@ -58,7 +58,7 @@ public class Player
         return this.creditCount;
     }
 
-    public void setCreditCount (final int creditCount)
+    void setCreditCount (final int creditCount)
     {
         this.creditCount = creditCount;
     }
@@ -68,7 +68,7 @@ public class Player
         return this.dollarCount;
     }
 
-    public void setDollarCount (final int dollarCount)
+    void setDollarCount (final int dollarCount)
     {
         this.dollarCount = dollarCount;
     }
@@ -78,7 +78,7 @@ public class Player
         return this.rank;
     }
 
-    public void setRank (final int rank)
+    void setRank (final int rank)
     {
         this.rank = rank;
     }
@@ -88,7 +88,7 @@ public class Player
         return this.practiceChips;
     }
 
-    public void setPracticeChips (final int practiceChips)
+    void setPracticeChips (final int practiceChips)
     {
         this.practiceChips = practiceChips;
     }
@@ -98,7 +98,7 @@ public class Player
         return this.currentRoom;
     }
 
-    public void setCurrentRoom (final Room currentRoom)
+    void setCurrentRoom (final Room currentRoom)
     {
         this.currentRoom = currentRoom;
     }
@@ -108,7 +108,7 @@ public class Player
         return this.activeRole;
     }
 
-    public void setActiveRole (final Role activeRole)
+    void setActiveRole (final Role activeRole)
     {
         this.activeRole = activeRole;
     }

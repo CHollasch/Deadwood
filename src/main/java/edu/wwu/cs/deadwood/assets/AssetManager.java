@@ -11,12 +11,15 @@ import org.xml.sax.SAXException;
 import javax.imageio.ImageIO;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
-import java.awt.*;
+import java.awt.AlphaComposite;
+import java.awt.Color;
+import java.awt.Graphics2D;
+import java.awt.Image;
 import java.awt.image.BufferedImage;
-import java.awt.image.ColorModel;
-import java.awt.image.WritableRaster;
 import java.io.File;
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -75,6 +78,8 @@ public class AssetManager
     private final File assetDirectory;
     private final DocumentBuilder documentBuilder;
 
+    private boolean runningFromJar;
+
     // XML to POJO
     private final Map<String, Room> roomMap;
     private final Map<String, Card> cardMap;
@@ -86,6 +91,9 @@ public class AssetManager
     private Image boardDrawable;
     private Image shotDrawable;
     private Image cardBackDrawable;
+
+    private Image roleSelectorAvailable;
+    private Image roleSelectorUnavailable;
 
     private final Map<Player.Color, Image[]> playerDice;
     private final Map<Card, Image> cardImages;
@@ -121,12 +129,16 @@ public class AssetManager
 
     private void loadAssets () throws IOException, SAXException
     {
+        performJarcheck();
+
         loadBoard();
         loadCards();
 
         this.boardDrawable = ImageIO.read(new File(assetDirectory, "board.jpg"));
         this.shotDrawable = ImageIO.read(new File(assetDirectory, "shot.png"));
         this.cardBackDrawable = ImageIO.read(new File(assetDirectory, "cards" + File.separator + "back.png"));
+
+        createRoleSelectorImages(ImageIO.read(new File(assetDirectory, "role_selector.png")));
 
         for (final Player.Color color : Player.Color.values()) {
             final Image[] diceImages = new Image[6];
@@ -153,18 +165,20 @@ public class AssetManager
 
             final PartiallyLoadedRoom room;
             // Load the room based on room type, set/trailer/office.
-            if (nodeName.equals("set")) {
-                room = loadStandardRoom(node);
-            }
-            else if (nodeName.equals("trailer")) {
-                // Load trailer.
-                room = loadSpecialRoom(node, Room.Type.TRAILER, "trailer");
-                this.trailerRoom = room.room;
-            }
-            else {
-                // Load office.
-                room = loadSpecialRoom(node, Room.Type.CASTING_OFFICE, "office");
-                this.upgradeRoom = room.room;
+            switch (nodeName) {
+                case "set":
+                    room = loadStandardRoom(node);
+                    break;
+                case "trailer":
+                    // Load trailer.
+                    room = loadSpecialRoom(node, Room.Type.TRAILER, "trailer");
+                    this.trailerRoom = room.room;
+                    break;
+                default:
+                    // Load office.
+                    room = loadSpecialRoom(node, Room.Type.CASTING_OFFICE, "office");
+                    this.upgradeRoom = room.room;
+                    break;
             }
 
             final Node playerLocations = extractFirstOccurance(node, "players");
@@ -369,6 +383,21 @@ public class AssetManager
         return nodes;
     }
 
+    private void createRoleSelectorImages (final Image base)
+    {
+        if (!(base instanceof BufferedImage)) {
+            return;
+        }
+
+        final BufferedImage img = (BufferedImage) base;
+
+        final BufferedImage available = colorize(img, new Color(0, 255, 0, 255));
+        final BufferedImage unavailable = colorize(img, new Color(255, 0, 0, 255));
+
+        this.roleSelectorAvailable = available;
+        this.roleSelectorUnavailable = unavailable;
+    }
+
     private void createHoverImages (final Room room, final Image base)
     {
         if (!(base instanceof BufferedImage)) {
@@ -401,6 +430,22 @@ public class AssetManager
         g.dispose();
 
         return dyed;
+    }
+
+    private void performJarcheck ()
+    {
+        final String check = getClass().getResource("").getPath();
+        this.runningFromJar = check.toLowerCase().startsWith("jar");
+    }
+
+    private File getAsset (final String path)
+    {
+        if (this.runningFromJar) {
+            final ClassLoader cl = getClass().getClassLoader();
+            return new File(cl.getResource(path).getFile());
+        } else {
+            return new File(this.assetDirectory, path);
+        }
     }
 
     //==================================================================================================================
@@ -459,6 +504,16 @@ public class AssetManager
     public Image getCardImage (final Card card)
     {
         return this.cardImages.get(card);
+    }
+
+    public Image getRoleSelectorAvailable ()
+    {
+        return this.roleSelectorAvailable;
+    }
+
+    public Image getRoleSelectorUnavailable ()
+    {
+        return this.roleSelectorUnavailable;
     }
 
     //==================================================================================================================

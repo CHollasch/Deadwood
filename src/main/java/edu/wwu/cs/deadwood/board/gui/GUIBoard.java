@@ -72,26 +72,14 @@ public class GUIBoard implements Board
         this.frame.setVisible(true);
     }
 
-    public void destroyWindow ()
+    private void destroyWindow ()
     {
         this.frame.dispatchEvent(new WindowEvent(frame, WindowEvent.WINDOW_CLOSING));
     }
 
-    public ActionPanel getActionPanel ()
-    {
-        return this.actionPanel;
-    }
-
-    public BoardPanel getBoardPanel ()
+    BoardPanel getBoardPanel ()
     {
         return this.boardPanel;
-    }
-
-    @Override
-    public void refreshBoard ()
-    {
-        this.actionPanel.update();
-        this.boardPanel.repaint();
     }
 
     @Override
@@ -112,10 +100,10 @@ public class GUIBoard implements Board
     public void endGame ()
     {
         JOptionPane.showOptionDialog(
-                null,
+                this.boardPanel,
                 "That's the game! The winner is " + this.game.getWinner().getColor().name(),
                 "Game Over",
-                JOptionPane.PLAIN_MESSAGE,
+                JOptionPane.DEFAULT_OPTION,
                 JOptionPane.INFORMATION_MESSAGE,
                 null,
                 new String[] {"Ok"},
@@ -129,18 +117,18 @@ public class GUIBoard implements Board
     public void playerActed (final Player player, final boolean successful, final int diceRoll)
     {
         final int needed = player.getCurrentRoom().getCard().getCardBudget() - player.getPracticeChips();
-        final StringBuilder message = new StringBuilder();
-        message.append("<html><p>Act Results</p></br>");
-        message.append("<p> Act was <font color='"
+        String message = "<html><p>Act Results</p></br>" +
+                "<p> Act was <font color='"
                 + (successful ? "green" : "red") + "'>"
-                + (successful ? "successful" : "unsuccessful") + "</font></p></br>");
-        message.append("<p>Needed a " + needed + " roll to be successful, rolled a " + diceRoll + "</p>");
-        message.append("</html>");
+                + (successful ? "successful" : "unsuccessful") + "</font></p></br>" +
+                "<p>Needed a " + needed + " roll to be successful, rolled a " + diceRoll + "</p>" +
+                "</html>";
+
         JOptionPane.showOptionDialog(
-                null,
-                message.toString(),
+                this.boardPanel,
+                message,
                 "Act results",
-                JOptionPane.PLAIN_MESSAGE,
+                JOptionPane.DEFAULT_OPTION,
                 JOptionPane.INFORMATION_MESSAGE,
                 null,
                 new String[] {"Ok"},

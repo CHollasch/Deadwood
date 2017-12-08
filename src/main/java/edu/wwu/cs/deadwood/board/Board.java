@@ -15,8 +15,6 @@ import java.util.Map;
  */
 public interface Board
 {
-    void refreshBoard ();
-
     void sceneWrapped (
             final Room room,
             final Map<Player, Collection<Integer>> onCardPayouts,

@@ -43,13 +43,22 @@ public class CommandLineBoard implements Board
             final StringBuilder who = new StringBuilder();
 
             final Player current = this.game.getCurrentPlayer().getPlayer();
-            who.append(current.getColor().name().toLowerCase() + " ");
-            who.append("($" + current.getDollarCount() + ", " + current.getCreditCount() + "cr, rank "
-                    + current.getRank() + ")");
+            who.append(current.getColor().name().toLowerCase()).append(" ");
+
+            who.append("($").append(current.getDollarCount())
+                    .append(", ")
+                    .append(current.getCreditCount())
+                    .append("cr, rank ")
+                    .append(current.getRank())
+                    .append(")");
 
             if (current.getActiveRole() != null) {
                 final Role active = current.getActiveRole();
-                who.append(" working " + active.getName() + ", \"" + active.getLine() + "\"");
+                who.append(" working ")
+                        .append(active.getName())
+                        .append(", \"")
+                        .append(active.getLine())
+                        .append("\"");
             }
 
             System.out.println(who.toString());
@@ -65,7 +74,8 @@ public class CommandLineBoard implements Board
             final Player current = this.game.getCurrentPlayer().getPlayer();
             final Room room = current.getCurrentRoom();
 
-            where.append("in " + room.getName());
+            where.append("in ")
+                    .append(room.getName());
 
             // Format where message based on the room the player is in.
             // Trailer and office cannot be wrapped and thus are disregarded in this portion.
@@ -233,7 +243,6 @@ public class CommandLineBoard implements Board
             } else {
                 // If an invalid method was entered.
                 System.out.println("No such upgrade method, must be either $ or cr");
-                return;
             }
         });
 
@@ -318,7 +327,7 @@ public class CommandLineBoard implements Board
         }
     }
 
-    public void closeInputStreams ()
+    private void closeInputStreams ()
     {
         this.consoleScanner.close();
     }
@@ -326,12 +335,6 @@ public class CommandLineBoard implements Board
     //==================================================================================================================
     // Game interactions.
     //==================================================================================================================
-
-    @Override
-    public void refreshBoard ()
-    {
-        return;
-    }
 
     @Override
     public void sceneWrapped (
@@ -369,7 +372,7 @@ public class CommandLineBoard implements Board
         System.out.println("That's the game!");
 
         final ArrayList<Player> winners = new ArrayList<>(this.game.getPlayers());
-        Collections.sort(winners, (o1, o2) -> {
+        winners.sort((o1, o2) -> {
             final int s1 = o1.getScore();
             final int s2 = o2.getScore();
 

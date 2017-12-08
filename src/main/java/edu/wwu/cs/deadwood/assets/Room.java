@@ -41,7 +41,7 @@ public class Room
     // Constructors.
     //==================================================================================================================
 
-    public Room (
+    Room (
             final Type roomType,
             final String name,
             final int totalShotMarkers,
@@ -76,6 +76,7 @@ public class Room
     // Getters and Setters.
     //==================================================================================================================
 
+    @SuppressWarnings("unused")
     public Type getRoomType ()
     {
         return this.roomType;

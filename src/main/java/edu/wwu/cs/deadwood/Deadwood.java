@@ -24,7 +24,7 @@ public class Deadwood
     // Constructors.
     //==================================================================================================================
 
-    private Deadwood (final String... args) throws Exception
+    private Deadwood () throws Exception
     {
         try {
             this.playerCount = JOptionPane.showOptionDialog(
@@ -57,12 +57,13 @@ public class Deadwood
     // Public API.
     //==================================================================================================================
 
-    public void startGame ()
+    private void startGame ()
     {
         this.game = new Game(this);
         startGUIGame();
     }
 
+    @SuppressWarnings("unused")
     private void startCLIGame ()
     {
         final CommandLineBoard cliBoard = new CommandLineBoard(this.game);
@@ -79,6 +80,7 @@ public class Deadwood
         guiBoard.displayWindow();
     }
 
+    @SuppressWarnings("unused")
     public void onGameEnd ()
     {
         // Nothing to do here yet.
@@ -90,6 +92,6 @@ public class Deadwood
 
     public static void main (final String... args) throws Exception
     {
-        new Deadwood(args);
+        new Deadwood();
     }
 }

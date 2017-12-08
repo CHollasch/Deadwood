@@ -10,7 +10,6 @@
 
 package edu.wwu.cs.deadwood.board.gui;
 
-
 import edu.wwu.cs.deadwood.Actionable;
 import edu.wwu.cs.deadwood.Game;
 import edu.wwu.cs.deadwood.Player;
@@ -30,7 +29,7 @@ import java.util.*;
  * @author Connor Hollasch
  * @since December 06, 1:08 PM
  */
-public class ActionPanel extends JPanel
+class ActionPanel extends JPanel
 {
     private LinkedHashMap<Actionable, JButton> actionButtonMap;
     private LinkedHashMap<String, JLabel> statsMap;
@@ -40,8 +39,11 @@ public class ActionPanel extends JPanel
 
     private JPanel buttonPanel;
     private JPanel statsPanel;
+    private JLabel statusLabel;
 
-    public ActionPanel (final Game game, final GUIBoard board)
+    private MouseListener boardActionMouseListener;
+
+    ActionPanel (final Game game, final GUIBoard board)
     {
         this.game = game;
         this.board = board;
@@ -56,73 +58,132 @@ public class ActionPanel extends JPanel
         this.actionButtonMap = new LinkedHashMap<>();
         this.statsMap = new LinkedHashMap<>();
 
+        createActionButtons();
+
+        add(this.buttonPanel, BorderLayout.NORTH);
+
+        this.statsPanel = new JPanel();
+        this.statsPanel.setLayout(new BoxLayout(this.statsPanel, BoxLayout.Y_AXIS));
+        createStats();
+        add(this.statsPanel);
+
+        this.statusLabel = new JLabel("Waiting for input...");
+        this.statusLabel.setAlignmentX(CENTER_ALIGNMENT);
+        increaseFontSize(this.statusLabel, 14f);
+
+        final JPanel statusPanel = new JPanel();
+        statusPanel.setLayout(new BoxLayout(statusPanel, BoxLayout.Y_AXIS));
+        statusPanel.add(this.statusLabel);
+
+        add(statusPanel, BorderLayout.SOUTH);
+
+        update();
+    }
+
+    private void createActionButtons ()
+    {
         createActionButton("Act", Actionable.ACT, actionEvent -> this.game.currentPlayerAct());
         createActionButton("End Turn", Actionable.END_TURN, actionEvent -> this.game.currentPlayerEndTurn());
 
         createActionButton("Move", Actionable.MOVE, actionEvent -> {
             // Let the board panel know we're performing a move event.
-            ActionPanel.this.board.getBoardPanel().setTakingMoveInput(true);
+            ActionPanel.this.board.getBoardPanel().setTakingRoomInput(true);
+            setStatusText("Hover on room to select");
 
-            final MouseListener mouseListener = new MouseListener()
+            ActionPanel.this.boardActionMouseListener = new MouseListener()
             {
                 @Override
                 public void mouseClicked (MouseEvent e)
                 {
-                    final Room hoveringOver = ActionPanel.this.board.getBoardPanel().getHoveringOver();
+                    check();
+                }
+
+                @Override
+                public void mousePressed (MouseEvent e)
+                {
+                    check();
+                }
+
+                @Override
+                public void mouseReleased (MouseEvent e)
+                {
+                    check();
+                }
+
+                public void mouseEntered (MouseEvent e) {}
+                public void mouseExited (MouseEvent e) {}
+
+                private void check ()
+                {
+                    final Room hoveringOver = ActionPanel.this.board.getBoardPanel().getRoomHoveringOver();
                     final Collection<Room> adjacent = ActionPanel.this.game.getCurrentPlayer().getPlayer()
                             .getCurrentRoom().getAdjacentRooms();
 
+                    // Move to the room being hovered over if it is valid.
                     if (hoveringOver != null && adjacent.contains(hoveringOver)) {
                         ActionPanel.this.game.currentPlayerMove(hoveringOver);
-                        ActionPanel.this.board.getBoardPanel().removeMouseListener(this);
                         clearChoiceState();
+                        resetStatusText();
+                    } else {
+                        setStatusText("Cannot move there!");
                     }
                 }
-
-                public void mousePressed (MouseEvent e) {}
-                public void mouseReleased (MouseEvent e) {}
-                public void mouseEntered (MouseEvent e) {}
-                public void mouseExited (MouseEvent e) {}
             };
 
-            ActionPanel.this.board.getBoardPanel().addMouseListener(mouseListener);
+            ActionPanel.this.board.getBoardPanel().addMouseListener(ActionPanel.this.boardActionMouseListener);
         });
 
         createActionButton("Rehearse", Actionable.REHEARSE, actionEvent -> this.game.currentPlayerRehearse());
 
         createActionButton("Take Role", Actionable.TAKE_ROLE, actionEvent -> {
-            final Player currentPlayer = this.game.getCurrentPlayer().getPlayer();
+            final Player player = ActionPanel.this.game.getCurrentPlayer().getPlayer();
 
-            final Map<String, Role> roleMap = new HashMap<>();
-            final Collection<Role> availableRoles = game.getActableRolesByPlayer(currentPlayer);
+            final Room currentRoom = player.getCurrentRoom();
+            final Collection<Role> availableRoles = ActionPanel.this.game.getActableRolesByPlayer(player);
 
-            final Role[] roles = availableRoles.toArray(new Role[0]);
-            final String[] roleChoices = new String[roles.length];
+            ActionPanel.this.board.getBoardPanel().setTakingRoleInput(currentRoom, availableRoles);
+            setStatusText("Hover on role to select");
 
-            for (int i = 0; i < roles.length; ++i) {
-                roleChoices[i] = roles[i].getName();
-                roleMap.put(roles[i].getName(), roles[i]);
-            }
-
-            try {
-                final String choice = (String) JOptionPane.showInputDialog(
-                        ActionPanel.this.board.getBoardPanel(),
-                        "Pick a role to take ...",
-                        "Roles",
-                        JOptionPane.QUESTION_MESSAGE,
-                        null,
-                        roleChoices,
-                        roleChoices[0]);
-
-                if (choice == null) {
-                    return;
+            ActionPanel.this.boardActionMouseListener = new MouseListener()
+            {
+                @Override
+                public void mouseClicked (final MouseEvent e)
+                {
+                    check();
                 }
 
-                final Role chosenRole = roleMap.get(choice);
-                this.game.currentPlayerTakeRole(chosenRole);
-            } catch (final IllegalComponentStateException e) {
-                // Ignore.
-            }
+                @Override
+                public void mousePressed (MouseEvent e)
+                {
+                    check();
+                }
+
+                @Override
+                public void mouseReleased (MouseEvent e)
+                {
+                    check();
+                }
+
+                public void mouseEntered (MouseEvent e) {}
+                public void mouseExited (MouseEvent e) {}
+
+                private void check ()
+                {
+                    final Role hovering = ActionPanel.this.board.getBoardPanel().getRoleHoveringOver();
+
+                    if (hovering == null || !availableRoles.contains(hovering)) {
+                        setStatusText("Cannot take that role!");
+                        return;
+                    }
+
+                    // Take the role if an available role is being hovered over.
+                    ActionPanel.this.game.currentPlayerTakeRole(hovering);
+                    clearChoiceState();
+                    resetStatusText();
+                }
+            };
+
+            ActionPanel.this.board.getBoardPanel().addMouseListener(ActionPanel.this.boardActionMouseListener);
         });
 
         createActionButton("Upgrade", Actionable.UPGRADE, new ActionListener()
@@ -154,7 +215,7 @@ public class ActionPanel extends JPanel
                                 ActionPanel.this.board.getBoardPanel(),
                                 "You cannot afford to upgrade to any rank with credits!",
                                 "Error",
-                                JOptionPane.PLAIN_MESSAGE,
+                                JOptionPane.DEFAULT_OPTION,
                                 JOptionPane.ERROR_MESSAGE,
                                 null,
                                 new String[]{"Ok"},
@@ -177,7 +238,7 @@ public class ActionPanel extends JPanel
                                 ActionPanel.this.board.getBoardPanel(),
                                 "You cannot afford to upgrade to any rank with dollars!",
                                 "Error",
-                                JOptionPane.PLAIN_MESSAGE,
+                                JOptionPane.DEFAULT_OPTION,
                                 JOptionPane.ERROR_MESSAGE,
                                 null,
                                 new String[]{"Ok"},
@@ -215,7 +276,7 @@ public class ActionPanel extends JPanel
                         ActionPanel.this.board.getBoardPanel(),
                         "Pick a rank to upgrade to...",
                         "Rank Choice",
-                        JOptionPane.PLAIN_MESSAGE,
+                        JOptionPane.DEFAULT_OPTION,
                         JOptionPane.QUESTION_MESSAGE,
                         null,
                         options,
@@ -232,23 +293,18 @@ public class ActionPanel extends JPanel
         for (final JButton button : this.actionButtonMap.values()) {
             this.buttonPanel.add(button);
         }
-
-        add(this.buttonPanel, BorderLayout.NORTH);
-
-        this.statsPanel = new JPanel();
-        this.statsPanel.setLayout(new BoxLayout(this.statsPanel, BoxLayout.Y_AXIS));
-        createStats();
-        add(this.statsPanel);
-
-        update();
     }
 
     private void clearChoiceState ()
     {
-        this.board.getBoardPanel().setTakingMoveInput(false);
+        // Remove the action mouse listener whenever the choice state is cleared (new action chosen, etc).
+        this.board.getBoardPanel().removeMouseListener(this.boardActionMouseListener);
+
+        this.board.getBoardPanel().setTakingRoomInput(false);
+        this.board.getBoardPanel().clearTakingRoleInput();
     }
 
-    public void update ()
+    void update ()
     {
         final Collection<Actionable> actions = this.game.getCurrentPlayerPossibleActions();
         for (final Actionable action : this.actionButtonMap.keySet()) {
@@ -275,18 +331,24 @@ public class ActionPanel extends JPanel
         createStat("score", "Players Score", "...");
     }
 
+    private void resetStatusText ()
+    {
+        this.statusLabel.setText("Waiting for input...");
+    }
+
+    private void setStatusText (final String status)
+    {
+        this.statusLabel.setText(status);
+    }
+
     private void createStat (final String stat, final String header, final String value)
     {
         final JLabel statsHeader = new JLabel(header);
-        Font font = statsHeader.getFont();
-        Font bigger = font.deriveFont(25f);
-        statsHeader.setFont(bigger);
+        increaseFontSize(statsHeader, 25f);
         statsHeader.setAlignmentX(CENTER_ALIGNMENT);
 
         final JLabel statValue = new JLabel(value);
-        font = statValue.getFont();
-        bigger = font.deriveFont(20f);
-        statValue.setFont(bigger);
+        increaseFontSize(statValue, 20f);
         statValue.setAlignmentX(CENTER_ALIGNMENT);
 
         this.statsMap.put(stat, statValue);
@@ -295,6 +357,13 @@ public class ActionPanel extends JPanel
         this.statsPanel.add(statsHeader);
         this.statsPanel.add(statValue);
         this.statsPanel.add(Box.createVerticalStrut(15));
+    }
+
+    private void increaseFontSize(final JLabel label, final float newFontSize)
+    {
+        Font font = label.getFont();
+        Font bigger = font.deriveFont(newFontSize);
+        label.setFont(bigger);
     }
 
     private void updateStats ()

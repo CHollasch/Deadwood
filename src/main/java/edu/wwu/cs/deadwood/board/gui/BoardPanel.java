@@ -21,15 +21,14 @@ import edu.wwu.cs.deadwood.util.Location;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
+import java.util.HashSet;
 
 /**
  * @author Connor Hollasch
  * @since December 06, 1:08 PM
  */
-public class BoardPanel extends JPanel
+class BoardPanel extends JPanel
 {
     private static final int SCALE_WIDTH = 1200;
     private static final int SCALE_HEIGHT = 900;
@@ -39,10 +38,17 @@ public class BoardPanel extends JPanel
     private int width;
     private int height;
 
-    private Room hoveringOver;
-    private boolean isTakingMoveInput = false;
+    private Room roomHoveringOver;
+    private Role roleHoveringOver;
 
-    public BoardPanel (final Game game)
+    private boolean isTakingRoomInput = false;
+
+    private Room activeRolesRoom;
+    private Collection<Role> availableRoles;
+    private Collection<Role> allRoleInputRoles;
+    private boolean isTakingRoleInput = false;
+
+    BoardPanel (final Game game)
     {
         this.game = game;
         this.setPreferredSize(new Dimension(this.width = SCALE_WIDTH, this.height = SCALE_HEIGHT));
@@ -63,37 +69,72 @@ public class BoardPanel extends JPanel
 
             private void moveLogic (final MouseEvent e)
             {
-                if (BoardPanel.this.isTakingMoveInput) {
-                    final Room oldRoom = BoardPanel.this.hoveringOver;
-
+                if (BoardPanel.this.isTakingRoomInput || BoardPanel.this.isTakingRoleInput) {
                     final int x = e.getX();
                     final int y = e.getY();
 
-                    for (final Room room : AssetManager.getInstance().getRoomMap().values()) {
-                        final Location hoverLocation = room.getHoverLocation();
+                    if (BoardPanel.this.isTakingRoomInput) {
+                        final Room oldRoom = BoardPanel.this.roomHoveringOver;
 
-                        final double xScale = (double) BoardPanel.this.width / SCALE_WIDTH;
-                        final double yScale = (double) BoardPanel.this.height / SCALE_HEIGHT;
+                        boolean wasSet = false;
+                        for (final Room room : AssetManager.getInstance().getRoomMap().values()) {
+                            final Location hoverLocation = room.getHoverLocation();
+                            final Location scaled = scaleLocation(hoverLocation);
 
-                        final int newX = (int) (hoverLocation.getX() * xScale);
-                        final int newY = (int) (hoverLocation.getY() * yScale);
-                        final int newWidth = (int) (hoverLocation.getWidth() * xScale);
-                        final int newHeight = (int) (hoverLocation.getHeight() * yScale);
-
-                        if (x >= newX
-                                && y >= newY
-                                && x <= (newX + newWidth)
-                                && y <= (newY + newHeight)) {
-                            BoardPanel.this.hoveringOver = room;
-                            break;
+                            if (runBoundsCheck(x, y, scaled)) {
+                                BoardPanel.this.roomHoveringOver = room;
+                                wasSet = true;
+                                break;
+                            }
                         }
-                    }
 
-                    if ((oldRoom == null && BoardPanel.this.hoveringOver != null)
-                        || (oldRoom != null && BoardPanel.this.hoveringOver == null)
-                        || ((oldRoom != null && BoardPanel.this.hoveringOver != null)
-                            && (!oldRoom.equals(BoardPanel.this.hoveringOver)))) {
-                        repaint();
+                        if (!wasSet) {
+                            BoardPanel.this.roomHoveringOver = null;
+                        }
+
+                        if ((((oldRoom != null) && (BoardPanel.this.roomHoveringOver != null))
+                                && (!oldRoom.equals(BoardPanel.this.roomHoveringOver)))) {
+                            repaint();
+                        } else if (((oldRoom == null) && (BoardPanel.this.roomHoveringOver != null))
+                                || ((oldRoom != null) && (BoardPanel.this.roomHoveringOver == null))) {
+                            repaint();
+                        }
+                    } else {
+                        final Room current = BoardPanel.this.activeRolesRoom;
+                        final Location toCheck = scaleLocation(current.getHoverLocation());
+
+                        // Player is hovering in the room, now check for roles.
+                        if (runBoundsCheck(x, y, toCheck)) {
+
+                            final Role oldRole = BoardPanel.this.roleHoveringOver;
+                            boolean wasSet = false;
+
+                            for (final Role role : BoardPanel.this.allRoleInputRoles) {
+                                final Location scaled;
+
+                                if (role.isExtraRole()) {
+                                    scaled = scaleLocation(role.getLocation());
+                                } else {
+                                    scaled = scaleLocation(role.getLocation().add(current.getCardLocation()));
+                                }
+
+                                if (runBoundsCheck(x, y, scaled)) {
+                                    BoardPanel.this.roleHoveringOver = role;
+                                    wasSet = true;
+                                }
+                            }
+
+                            if (!wasSet) {
+                                BoardPanel.this.roleHoveringOver = null;
+                            }
+
+                            if ((oldRole == null && BoardPanel.this.roleHoveringOver != null)
+                                    || (oldRole != null && BoardPanel.this.roleHoveringOver == null)
+                                    || ((oldRole != null && BoardPanel.this.roleHoveringOver != null)
+                                    && (!oldRole.equals(BoardPanel.this.roleHoveringOver)))) {
+                                repaint();
+                            }
+                        }
                     }
                 }
             }
@@ -167,8 +208,8 @@ public class BoardPanel extends JPanel
 
         drawPlayer(g, this.game.getCurrentPlayer().getPlayer());
 
-        if (this.isTakingMoveInput) {
-            final Room hovering = this.hoveringOver;
+        if (this.isTakingRoomInput) {
+            final Room hovering = this.roomHoveringOver;
 
             if (hovering != null) {
                 final Location hoverLocation = hovering.getHoverLocation();
@@ -180,17 +221,57 @@ public class BoardPanel extends JPanel
                     drawImageWithScaling(g, AssetManager.getInstance().getHoverImage(hovering, false), hoverLocation);
                 }
             }
+        } else if (this.isTakingRoleInput) {
+            final Role hovering = this.roleHoveringOver;
+
+            if (hovering != null) {
+                final Location roleLocation = hovering.getLocation();
+                final Image toDraw = (this.availableRoles.contains(hovering)
+                        ? AssetManager.getInstance().getRoleSelectorAvailable()
+                        : AssetManager.getInstance().getRoleSelectorUnavailable());
+
+                if (hovering.isExtraRole()) {
+                    drawImageWithScaling(g, toDraw, roleLocation);
+                } else {
+                    drawForRoleOnCard(g, toDraw, this.activeRolesRoom.getCardLocation(), hovering);
+                }
+            }
         }
     }
 
-    public void setTakingMoveInput (final boolean takingMoveInput)
+    void setTakingRoomInput (final boolean takingRoomInput)
     {
-        this.isTakingMoveInput = takingMoveInput;
+        this.isTakingRoomInput = takingRoomInput;
     }
 
-    public Room getHoveringOver ()
+    void setTakingRoleInput (final Room activeRolesRoom, final Collection<Role> availableRoles)
     {
-        return this.hoveringOver;
+        this.isTakingRoleInput = true;
+        this.activeRolesRoom = activeRolesRoom;
+        this.availableRoles = availableRoles;
+
+        this.allRoleInputRoles = new HashSet<>();
+
+        this.allRoleInputRoles.addAll(activeRolesRoom.getExtraRoles());
+        this.allRoleInputRoles.addAll(activeRolesRoom.getCard().getRoles());
+    }
+
+    void clearTakingRoleInput ()
+    {
+        this.isTakingRoleInput = false;
+        this.activeRolesRoom = null;
+        this.availableRoles = null;
+        this.allRoleInputRoles = null;
+    }
+
+    Room getRoomHoveringOver ()
+    {
+        return this.roomHoveringOver;
+    }
+
+    Role getRoleHoveringOver ()
+    {
+        return this.roleHoveringOver;
     }
 
     private void drawPlayer (final Graphics g, final Player player)
@@ -228,6 +309,20 @@ public class BoardPanel extends JPanel
             final Image image,
             final Location location)
     {
+        final Location scaled = scaleLocation(location);
+        graphics.drawImage(image, scaled.getX(), scaled.getY(), scaled.getWidth(), scaled.getHeight(), null);
+    }
+
+    private boolean runBoundsCheck (final int x, final int y, final Location boundary)
+    {
+        return (x >= boundary.getX()
+                && y >= boundary.getY()
+                && x <= (boundary.getX() + boundary.getWidth())
+                && y <= (boundary.getY() + boundary.getHeight()));
+    }
+
+    private Location scaleLocation (final Location location)
+    {
         final double xScale = (double) this.width / SCALE_WIDTH;
         final double yScale = (double) this.height / SCALE_HEIGHT;
 
@@ -237,6 +332,6 @@ public class BoardPanel extends JPanel
         final int newWidth = (int) (location.getWidth() * xScale);
         final int newHeight = (int) (location.getHeight() * yScale);
 
-        graphics.drawImage(image, newX, newY, newWidth, newHeight, null);
+        return new Location(newX, newY, newWidth, newHeight);
     }
 }
