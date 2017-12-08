@@ -24,11 +24,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @author Connor Hollasch
@@ -43,9 +39,8 @@ public class ActionPanel extends JPanel
     private GUIBoard board;
 
     private JPanel buttonPanel;
-
     private JPanel statsPanel;
-    private JLabel currentPlayerLabel;
+    private JPanel outputPanel;
 
     public ActionPanel (final Game game, final GUIBoard board)
     {
@@ -167,7 +162,7 @@ public class ActionPanel extends JPanel
                                 new String[]{"Ok"},
                                 "Ok");
                     } else {
-                        final Integer goingTo = getUpgradingTo(rank);
+                        final Integer goingTo = getUpgradingTo(player, true);
 
                         if (goingTo == null) {
                             return;
@@ -190,7 +185,7 @@ public class ActionPanel extends JPanel
                                 new String[]{"Ok"},
                                 "Ok");
                     } else {
-                        final Integer goingTo = getUpgradingTo(rank);
+                        final Integer goingTo = getUpgradingTo(player, false);
 
                         if (goingTo == null) {
                             return;
@@ -201,12 +196,22 @@ public class ActionPanel extends JPanel
                 }
             }
 
-            private Integer getUpgradingTo (final int currentRank)
+            private Integer getUpgradingTo (final Player player, final boolean usingCredits)
             {
-                final Integer[] options = new Integer[6 - currentRank];
-                for (int i = currentRank + 1, j = 0; i <= 6; ++i) {
-                    options[j++] = i;
+                final int currentRank = player.getRank();
+                final java.util.List<Integer> canUpgradeTo = new ArrayList<>();
+
+                for (int i = currentRank + 1; i <= 6; ++i) {
+                    final int cost = (usingCredits
+                            ? AssetManager.getCreditUpgradeCost(i) : AssetManager.getDollarUpgradeCost(i));
+                    final int has = (usingCredits ? player.getCreditCount() : player.getDollarCount());
+
+                    if (has >= cost) {
+                        canUpgradeTo.add(i);
+                    }
                 }
+
+                final Integer[] options = canUpgradeTo.toArray(new Integer[canUpgradeTo.size()]);
 
                 final int idx = JOptionPane.showOptionDialog(
                         ActionPanel.this.board.getBoardPanel(),
@@ -234,10 +239,12 @@ public class ActionPanel extends JPanel
 
         this.statsPanel = new JPanel();
         this.statsPanel.setLayout(new BoxLayout(this.statsPanel, BoxLayout.Y_AXIS));
-
         createStats();
-
         add(this.statsPanel);
+
+        this.outputPanel = new JPanel();
+        this.outputPanel.add(new JLabel("Test"));
+        add(this.outputPanel, BorderLayout.SOUTH);
 
         update();
     }
@@ -268,7 +275,7 @@ public class ActionPanel extends JPanel
         createStat("day", "Current Day", "1");
         createStat("player", "Current Player", "...");
         createStat("rank", "Rank", "...");
-        createStat("money", "Money", "...");
+        createStat("money", "Dollars", "...");
         createStat("credits", "Credits", "...");
         createStat("rehearsalPoints", "Rehearsal Points", "...");
         createStat("score", "Players Score", "...");

@@ -128,9 +128,17 @@ public class GUIBoard implements Board
     @Override
     public void playerActed (final Player player, final boolean successful, final int diceRoll)
     {
+        final int needed = player.getCurrentRoom().getCard().getCardBudget() - player.getPracticeChips();
+        final StringBuilder message = new StringBuilder();
+        message.append("<html><p>Act Results</p></br>");
+        message.append("<p> Act was <font color='"
+                + (successful ? "green" : "red") + "'>"
+                + (successful ? "successful" : "unsuccessful") + "</font></p></br>");
+        message.append("<p>Needed a " + needed + " roll to be successful, rolled a " + diceRoll + "</p>");
+        message.append("</html>");
         JOptionPane.showOptionDialog(
                 null,
-                "Act was " + (successful ? "successful" : "unsuccessful") +" (rolled a " + diceRoll + ")",
+                message.toString(),
                 "Act results",
                 JOptionPane.PLAIN_MESSAGE,
                 JOptionPane.INFORMATION_MESSAGE,

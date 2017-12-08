@@ -55,7 +55,7 @@ public class Game
     public void initializeGame (final Board gameBoard, final int playerCount)
     {
         this.gameBoard = gameBoard;
-        this.daysLeft = 4;
+        this.daysLeft = 1;
 
         // Create player list with random colors.
         final List<Player.Color> colors = new ArrayList<>(Arrays.asList(Player.Color.values()));
