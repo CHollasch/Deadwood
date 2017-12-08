@@ -40,7 +40,6 @@ public class ActionPanel extends JPanel
 
     private JPanel buttonPanel;
     private JPanel statsPanel;
-    private JPanel outputPanel;
 
     public ActionPanel (final Game game, final GUIBoard board)
     {
@@ -145,7 +144,6 @@ public class ActionPanel extends JPanel
                 }
 
                 final Player player = ActionPanel.this.game.getCurrentPlayer().getPlayer();
-                final int rank = player.getRank();
 
                 if (choice.equals("Credits")) {
                     final int credits = player.getCreditCount();
@@ -241,10 +239,6 @@ public class ActionPanel extends JPanel
         this.statsPanel.setLayout(new BoxLayout(this.statsPanel, BoxLayout.Y_AXIS));
         createStats();
         add(this.statsPanel);
-
-        this.outputPanel = new JPanel();
-        this.outputPanel.add(new JLabel("Test"));
-        add(this.outputPanel, BorderLayout.SOUTH);
 
         update();
     }
